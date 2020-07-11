@@ -1,0 +1,329 @@
+[package]
+name = "node-template-runtime"
+authors = ["{{authors}}"]
+edition = '2018'
+homepage = 'https://substrate.dev'
+license = 'Unlicense'
+repository = 'https://github.com/kaichaosun/substrate-stencil'
+version = '2.0.0-rc4'
+
+[package.metadata.docs.rs]
+targets = ['x86_64-unknown-linux-gnu']
+
+[dependencies]
+static_assertions = "1.1.0"
+
+[dependencies.babe]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-babe'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.balances]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-balances'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.authorship]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-authorship'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.offences]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-offences'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.im-online]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-im-online'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.codec]
+default-features = false
+features = ['derive']
+package = 'parity-scale-codec'
+version = '1.3.1'
+
+[dependencies.frame-executive]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.frame-support]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.grandpa]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-grandpa'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.randomness-collective-flip]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-randomness-collective-flip'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.serde]
+features = ['derive']
+optional = true
+version = '1.0.101'
+
+[dependencies.sp-api]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-block-builder]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-consensus-babe]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '0.8.0-rc4'
+
+[dependencies.sp-core]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-inherents]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-io]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-offchain]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-runtime]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-session]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-std]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-transaction-pool]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-version]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-staking]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sp-application-crypto]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.sudo]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-sudo'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.system]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'frame-system'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.session]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+features = ["historical"]
+package = 'pallet-session'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.staking]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-staking'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.pallet-staking-reward-curve]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-staking-reward-curve'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.utility]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-utility'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+
+[dependencies.treasury]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-treasury'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.collective]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-collective'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.elections-phragmen]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-elections-phragmen'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.membership]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-membership'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.democracy]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-democracy'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.scheduler]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-scheduler'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.template]
+default-features = false
+package = 'pallet-template'
+path = '../pallets/template'
+version = '2.0.0-rc4'
+
+[dependencies.organization]
+default-features = false
+package = 'pallet-organization'
+path = '../pallets/organization'
+version = '2.0.0-rc4'
+
+[dependencies.timestamp]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-timestamp'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+
+[dependencies.transaction-payment]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-transaction-payment'
+tag = 'v2.0.0-rc4'
+version = '2.0.0-rc4'
+[build-dependencies.wasm-builder-runner]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-wasm-builder-runner'
+tag = 'v2.0.0-rc4'
+version = '1.0.5'
+
+[features]
+default = ['std']
+std = [
+    'babe/std',
+    'balances/std',
+    'authorship/std',
+    'codec/std',
+    'frame-executive/std',
+    'frame-support/std',
+    'grandpa/std',
+    'randomness-collective-flip/std',
+    'serde',
+    'sp-api/std',
+    'sp-block-builder/std',
+    'sp-consensus-babe/std',
+    'sp-core/std',
+    'sp-inherents/std',
+    'sp-io/std',
+    'sp-offchain/std',
+    'sp-runtime/std',
+    'sp-session/std',
+    'sp-std/std',
+    'sp-transaction-pool/std',
+    'sp-version/std',
+    'sp-staking/std',
+    'sudo/std',
+    'system/std',
+    'timestamp/std',
+    'session/std',
+    'staking/std',
+    'offences/std',
+    'im-online/std',
+    'transaction-payment/std',
+    'utility/std',
+    'treasury/std',
+    'collective/std',
+    'elections-phragmen/std',
+    'membership/std',
+    'democracy/std',
+    'template/std',
+]

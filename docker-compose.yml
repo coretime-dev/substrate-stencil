@@ -1,0 +1,17 @@
+version: "3.2"
+
+services:
+  dev:
+    container_name: substrate-stencil
+    image: parity/rust-builder:latest
+    working_dir: /var/www/substrate-stencil
+    ports:
+      - "9944:9944"
+    environment:
+      - CARGO_HOME=/var/www/substrate-stencil/.cargo
+    volumes:
+      - .:/var/www/substrate-stencil
+      - type: bind
+        source: ./.local
+        target: /root/.local
+    command: bash -c "cargo build --release && ./target/release/substrate-stencil --dev --ws-external"
