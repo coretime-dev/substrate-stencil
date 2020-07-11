@@ -223,7 +223,7 @@ impl OnUnbalanced<NegativeImbalance> for DealWithFees {
 pub struct BaseFilter;
 impl Filter<Call> for BaseFilter {
 	fn filter(call: &Call) -> bool {
-		/// Avoid processing transactions from template module.
+		// Avoid processing transactions from template module.
 		!matches!(call, Call::TemplateModule(_))
 	}
 }

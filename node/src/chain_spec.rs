@@ -15,7 +15,7 @@ use telemetry::TelemetryEndpoints;
 use pallet_staking::Forcing;
 
 // Note this is the URL for the telemetry server
-const TAO_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
+const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
 /// Specialized `ChainSpec`. This is a specialization of the general Substrate ChainSpec type.
 pub type ChainSpec = sc_service::GenericChainSpec<GenesisConfig>;
@@ -185,26 +185,26 @@ fn testnet_genesis(initial_authorities: Vec<(AccountId, AccountId, BabeId, Grand
 }
 
 // public staging network
-pub fn tao_staging_testnet_config() -> ChainSpec {
+pub fn staging_testnet_config() -> ChainSpec {
 	let boot_nodes = vec![];
 
 	ChainSpec::from_genesis(
-		"Tao Staging Testnet",
-		"tao_staging",
+		"My Staging Testnet",
+		"my_staging",
 		ChainType::Live,
-		tao_staging_testnet_genesis,
+		staging_testnet_genesis,
 		boot_nodes,
 		Some(
-			TelemetryEndpoints::new(vec![(TAO_STAGING_TELEMETRY_URL.to_string(), 0)])
+			TelemetryEndpoints::new(vec![(STAGING_TELEMETRY_URL.to_string(), 0)])
 				.expect("Westend Staging telemetry url is valid; qed")
 		),
-		Some("tao_staging"),
+		Some("my_staging"),
 		None,
 		Default::default(),
 	)
 }
 
-fn tao_staging_testnet_genesis() -> GenesisConfig {
+fn staging_testnet_genesis() -> GenesisConfig {
 	// subkey inspect "$SECRET"
 	let endowed_accounts = vec![
 		// 5FemZuvaJ7wVy4S49X7Y9mj7FyTR4caQD5mZo2rL7MXQoXMi
