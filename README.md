@@ -7,7 +7,7 @@
   <h3>
     <a href="https://substrate.dev/">Docs</a>
     <span> | </span>
-    <a href="https://discordapp.com/channels/442252698964721669/443151097398296587">Chat</a>
+    <a href="https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org?via=matrix.parity.io&via=matrix.org&via=web3.foundation">Chat</a>
   </h3>
 
 </div>
