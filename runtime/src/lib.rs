@@ -730,11 +730,6 @@ impl template::Trait for Runtime {
 	type Event = Event;
 }
 
-impl organization::Trait for Runtime {
-	type Event = Event;
-	type Balance = Balance;
-}
-
 construct_runtime!(
 	pub enum Runtime where
 		Block = Block,
@@ -770,7 +765,6 @@ construct_runtime!(
 
 		// Business module
 		TemplateModule: template::{Module, Call, Storage, Event<T>},
-		OrganizationModule: organization::{Module, Call, Storage, Event<T>},
 	}
 );
 

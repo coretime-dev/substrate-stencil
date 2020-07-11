@@ -261,12 +261,6 @@ package = 'pallet-template'
 path = '../pallets/template'
 version = '2.0.0-rc4'
 
-[dependencies.organization]
-default-features = false
-package = 'pallet-organization'
-path = '../pallets/organization'
-version = '2.0.0-rc4'
-
 [dependencies.timestamp]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
