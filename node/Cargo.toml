@@ -7,125 +7,52 @@ edition = '2018'
 homepage = 'https://substrate.io'
 license = 'Unlicense'
 repository = 'https://github.com/substrate-developer-hub/substrate-node-template/'
-version = '2.0.0-rc4'
+version = '2.0.0'
+
+# TODO should same with project name
+# [[bin]]
+# name = 'substrate-stencil'
 
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']
 
-[build-dependencies.substrate-build-script-utils]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
+[build-dependencies]
+substrate-build-script-utils = '2.0.0'
 
 [dependencies]
-futures = '0.3.4'
-log = '0.4.8'
-parking_lot = '0.10.0'
+jsonrpc-core = '15.0.0'
 structopt = '0.3.8'
-hex-literal = "0.2.1"
 
-[dependencies.node-template-runtime]
-path = '../runtime'
-version = '2.0.0-rc4'
+# local dependencies
+node-template-runtime = { path = '../runtime', version = '2.0.0' }
 
-[dependencies.sc-basic-authorship]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
+# Substrate dependencies
+frame-benchmarking = '2.0.0'
+frame-benchmarking-cli = '2.0.0'
+pallet-transaction-payment-rpc = '2.0.0'
+sc-basic-authorship = '0.8.0'
+sc-cli = { features = ['wasmtime'], version = '0.8.0' }
+sc-client-api = '2.0.0'
+sc-consensus = '0.8.0'
+sc-consensus-aura = '0.8.0'
+sc-executor = { features = ['wasmtime'], version = '0.8.0' }
+sc-finality-grandpa = '0.8.0'
+sc-rpc = '2.0.0'
+sc-rpc-api = '0.8.0'
+sc-service = { features = ['wasmtime'], version = '0.8.0' }
+sc-transaction-pool = '2.0.0'
+sp-api = '2.0.0'
+sp-block-builder = '2.0.0'
+sp-blockchain = '2.0.0'
+sp-consensus = '0.8.0'
+sp-consensus-aura = '0.8.0'
+sp-core = '2.0.0'
+sp-finality-grandpa = '2.0.0'
+sp-inherents = '2.0.0'
+sp-runtime = '2.0.0'
+sp-transaction-pool = '2.0.0'
+substrate-frame-rpc-system = '2.0.0'
 
-[dependencies.sc-cli]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
-
-[dependencies.sc-client-api]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
-
-[dependencies.sc-consensus]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
-
-[dependencies.sc-consensus-babe]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
-
-[dependencies.sc-executor]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
-
-[dependencies.sc-finality-grandpa]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
-
-[dependencies.sc-network]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
-
-[dependencies.sc-service]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
-
-[dependencies.sc-transaction-pool]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
-
-[dependencies.sp-consensus]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
-
-[dependencies.sp-consensus-babe]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '0.8.0-rc3'
-
-[dependencies.sp-core]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
-
-[dependencies.sp-finality-grandpa]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
-
-[dependencies.sp-inherents]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
-
-[dependencies.sp-runtime]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
-
-[dependencies.sp-transaction-pool]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
-
-
-[dependencies.telemetry]
-git = 'https://github.com/paritytech/substrate.git'
-package = "sc-telemetry"
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
-
-[dependencies.pallet-staking]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
-
-[dependencies.pallet-im-online]
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc4'
-version = '2.0.0-rc4'
+[features]
+default = []
+runtime-benchmarks = ['node-template-runtime/runtime-benchmarks']
