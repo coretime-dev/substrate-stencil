@@ -6,12 +6,8 @@ description = 'Substrate node template'
 edition = '2018'
 homepage = 'https://substrate.io'
 license = 'Unlicense'
-repository = 'https://github.com/substrate-developer-hub/substrate-node-template/'
+repository = 'https://github.com/kaichaosun/substrate-stencil'
 version = '2.0.0'
-
-# TODO should same with project name
-# [[bin]]
-# name = 'substrate-stencil'
 
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']

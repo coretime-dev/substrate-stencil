@@ -64,7 +64,7 @@ Purge any existing developer chain state:
 Start a development chain with:
 
 ```bash
-./target/release/node-template --dev
+./target/release/my-project --dev
 ```
 
 Detailed logs may be shown by running the node with the following environment variables set: `RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- --dev`.
