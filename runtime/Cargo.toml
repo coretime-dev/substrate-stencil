@@ -38,6 +38,9 @@ pallet-babe = { default-features = false, version = '2.0.0' }
 pallet-balances = { default-features = false, version = '2.0.0' }
 pallet-grandpa = { default-features = false, version = '2.0.0' }
 pallet-randomness-collective-flip = { default-features = false, version = '2.0.0' }
+pallet-session = { default-features = false, version = '2.0.0', features = ['historical'] }
+pallet-staking = { default-features = false, version = '2.0.0' }
+pallet-staking-reward-curve = { default-features = false, version = '2.0.0' }
 pallet-sudo = { default-features = false, version = '2.0.0' }
 pallet-timestamp = { default-features = false, version = '2.0.0' }
 pallet-transaction-payment = { default-features = false, version = '2.0.0' }
@@ -50,6 +53,7 @@ sp-inherents = { default-features = false, version = '2.0.0' }
 sp-offchain = { default-features = false, version = '2.0.0' }
 sp-runtime = { default-features = false, version = '2.0.0' }
 sp-session = { default-features = false, version = '2.0.0' }
+sp-staking = { default-features = false, version = '2.0.0' }
 sp-std = { default-features = false, version = '2.0.0' }
 sp-transaction-pool = { default-features = false, version = '2.0.0' }
 sp-version = { default-features = false, version = '2.0.0' }
@@ -77,10 +81,12 @@ std = [
     'pallet-balances/std',
     'pallet-grandpa/std',
     'pallet-randomness-collective-flip/std',
+	'pallet-session/std',
+	'pallet-staking/std',
     'pallet-sudo/std',
-    
-    'pallet-template/std',
 
+    'pallet-template/std',
+	
     'pallet-timestamp/std',
     'pallet-transaction-payment/std',
     'pallet-transaction-payment-rpc-runtime-api/std',
@@ -92,6 +98,7 @@ std = [
     'sp-offchain/std',
     'sp-runtime/std',
     'sp-session/std',
+    'sp-staking/std',
     'sp-std/std',
     'sp-transaction-pool/std',
     'sp-version/std',
