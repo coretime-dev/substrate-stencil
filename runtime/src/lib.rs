@@ -439,6 +439,12 @@ impl pallet_authorship::Trait for Runtime {
 	type EventHandler = Staking;
 }
 
+impl pallet_utility::Trait for Runtime {
+	type Event = Event;
+	type Call = Call;
+	type WeightInfo = weights::pallet_utility::WeightInfo;
+}
+
 /// Configure the template pallet in pallets/template.
 impl pallet_template::Trait for Runtime {
 	type Event = Event;
@@ -463,6 +469,7 @@ construct_runtime!(
 		Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
 		Historical: pallet_session_historical::{Module},
 		Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
+		Utility: pallet_utility::{Module, Call, Event},
 		// Include the custom logic from the template pallet in the runtime.
 		TemplateModule: pallet_template::{Module, Call, Storage, Event<T>},
 	}
