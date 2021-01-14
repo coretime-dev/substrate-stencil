@@ -266,8 +266,7 @@ impl pallet_babe::Trait for Runtime {
 	// Change SameAuthoritiesForever to ExternalTrigger to enable elections in PoS.
 	type EpochChangeTrigger = pallet_babe::SameAuthoritiesForever;
 
-	// TODO Handle equivacation with session pallet
-	type KeyOwnerProofSystem = ();
+	type KeyOwnerProofSystem = Historical;
 
 	type KeyOwnerProof = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
 		KeyTypeId,
@@ -279,8 +278,8 @@ impl pallet_babe::Trait for Runtime {
 		pallet_babe::AuthorityId,
 	)>>::IdentificationTuple;
 
-	// TODO Handle equivacation with session pallet
-	type HandleEquivocation = ();
+	type HandleEquivocation =
+		pallet_babe::EquivocationHandler<Self::KeyOwnerIdentification, Offences>;
 
 	type WeightInfo = ();
 }
@@ -289,7 +288,7 @@ impl pallet_grandpa::Trait for Runtime {
 	type Event = Event;
 	type Call = Call;
 
-	type KeyOwnerProofSystem = ();
+	type KeyOwnerProofSystem = Historical;
 
 	type KeyOwnerProof =
 		<Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
@@ -299,7 +298,8 @@ impl pallet_grandpa::Trait for Runtime {
 		GrandpaId,
 	)>>::IdentificationTuple;
 
-	type HandleEquivocation = ();
+	type HandleEquivocation = 
+		pallet_grandpa::EquivocationHandler<Self::KeyOwnerIdentification, Offences>;
 
 	type WeightInfo = ();
 }
@@ -445,6 +445,17 @@ impl pallet_utility::Trait for Runtime {
 	type WeightInfo = weights::pallet_utility::WeightInfo;
 }
 
+parameter_types! {
+	pub OffencesWeightSoftLimit: Weight = Perbill::from_percent(60) * MaximumBlockWeight::get();
+}
+
+impl pallet_offences::Trait for Runtime {
+	type Event = Event;
+	type IdentificationTuple = pallet_session::historical::IdentificationTuple<Self>;
+	type OnOffenceHandler = Staking;
+	type WeightSoftLimit = OffencesWeightSoftLimit;
+}
+
 /// Configure the template pallet in pallets/template.
 impl pallet_template::Trait for Runtime {
 	type Event = Event;
@@ -470,6 +481,7 @@ construct_runtime!(
 		Historical: pallet_session_historical::{Module},
 		Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
 		Utility: pallet_utility::{Module, Call, Event},
+		Offences: pallet_offences::{Module, Call, Storage, Event},
 		// Include the custom logic from the template pallet in the runtime.
 		TemplateModule: pallet_template::{Module, Call, Storage, Event<T>},
 	}
@@ -592,27 +604,25 @@ impl_runtime_apis! {
 
 		fn generate_key_ownership_proof(
 			_slot_number: sp_consensus_babe::SlotNumber,
-			_authority_id: sp_consensus_babe::AuthorityId,
+			authority_id: sp_consensus_babe::AuthorityId,
 		) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
-			// use codec::Encode;
+			use codec::Encode;
 
-			// Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
-			// 	.map(|p| p.encode())
-			// 	.map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
-			None
+			Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
+				.map(|p| p.encode())
+				.map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
 		}
 
 		fn submit_report_equivocation_unsigned_extrinsic(
-			_equivocation_proof: sp_consensus_babe::EquivocationProof<<Block as BlockT>::Header>,
-			_key_owner_proof: sp_consensus_babe::OpaqueKeyOwnershipProof,
+			equivocation_proof: sp_consensus_babe::EquivocationProof<<Block as BlockT>::Header>,
+			key_owner_proof: sp_consensus_babe::OpaqueKeyOwnershipProof,
 		) -> Option<()> {
-			// let key_owner_proof = key_owner_proof.decode()?;
+			let key_owner_proof = key_owner_proof.decode()?;
 
-			// Babe::submit_unsigned_equivocation_report(
-			// 	equivocation_proof,
-			// 	key_owner_proof,
-			// )
-			None
+			Babe::submit_unsigned_equivocation_report(
+				equivocation_proof,
+				key_owner_proof,
+			)
 		}
 	}
 
@@ -634,23 +644,29 @@ impl_runtime_apis! {
 		}
 
 		fn submit_report_equivocation_unsigned_extrinsic(
-			_equivocation_proof: fg_primitives::EquivocationProof<
+			equivocation_proof: fg_primitives::EquivocationProof<
 				<Block as BlockT>::Hash,
 				NumberFor<Block>,
 			>,
-			_key_owner_proof: fg_primitives::OpaqueKeyOwnershipProof,
+			key_owner_proof: fg_primitives::OpaqueKeyOwnershipProof,
 		) -> Option<()> {
-			None
+			let key_owner_proof = key_owner_proof.decode()?;
+
+			Grandpa::submit_unsigned_equivocation_report(
+				equivocation_proof,
+				key_owner_proof,
+			)
 		}
 
 		fn generate_key_ownership_proof(
 			_set_id: fg_primitives::SetId,
-			_authority_id: GrandpaId,
+			authority_id: GrandpaId,
 		) -> Option<fg_primitives::OpaqueKeyOwnershipProof> {
-			// NOTE: this is the only implementation possible since we've
-			// defined our key owner proof type as a bottom type (i.e. a type
-			// with no values).
-			None
+			use codec::Encode;
+
+			Historical::prove((fg_primitives::KEY_TYPE, authority_id))
+				.map(|p| p.encode())
+				.map(fg_primitives::OpaqueKeyOwnershipProof::new)
 		}
 	}
 

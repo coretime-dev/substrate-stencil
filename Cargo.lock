@@ -3284,6 +3284,7 @@ dependencies = [
  "pallet-babe",
  "pallet-balances",
  "pallet-grandpa",
+ "pallet-offences",
  "pallet-randomness-collective-flip",
  "pallet-session",
  "pallet-staking",
@@ -3551,6 +3552,22 @@ dependencies = [
  "sp-finality-grandpa",
  "sp-runtime",
  "sp-session",
+ "sp-staking",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-offences"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3808652ee7766d6d8a9564407b07bcf1bdfc9b6b1d82365605105737b7a6992f"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "parity-scale-codec",
+ "serde",
+ "sp-runtime",
  "sp-staking",
  "sp-std",
 ]
