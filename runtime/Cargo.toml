@@ -23,6 +23,7 @@ version = '1.3.4'
 [dependencies]
 hex-literal = { optional = true, version = '0.3.1' }
 serde = { features = ['derive'], optional = true, version = '1.0.101' }
+static_assertions = "1.1.0"
 
 # local dependencies
 pallet-template = { path = '../pallets/template', default-features = false, version = '2.0.0' }
@@ -49,6 +50,12 @@ pallet-utility = { default-features = false, version = '2.0.0' }
 pallet-timestamp = { default-features = false, version = '2.0.0' }
 pallet-transaction-payment = { default-features = false, version = '2.0.0' }
 pallet-transaction-payment-rpc-runtime-api = { default-features = false, version = '2.0.0' }
+pallet-treasury = { default-features = false, version = '2.0.0' }
+pallet-collective = { default-features = false, version = '2.0.0' }
+pallet-elections-phragmen = { default-features = false, version = '2.0.0' }
+pallet-membership = { default-features = false, version = '2.0.0' }
+pallet-democracy = { default-features = false, version = '2.0.0' }
+pallet-scheduler = { default-features = false, version = '2.0.0' }
 sp-api = { default-features = false, version = '2.0.0' }
 sp-block-builder = { default-features = false, version = '2.0.0' }
 sp-consensus-babe = { default-features = false, version = '0.8.0' }
@@ -98,6 +105,12 @@ std = [
     'pallet-timestamp/std',
     'pallet-transaction-payment/std',
     'pallet-transaction-payment-rpc-runtime-api/std',
+    'pallet-treasury/std',
+    'pallet-collective/std',
+    'pallet-elections-phragmen/std',
+    'pallet-membership/std',
+    'pallet-democracy/std',
+    'pallet-scheduler/std',
     'sp-api/std',
     'sp-block-builder/std',
     'sp-consensus-babe/std',

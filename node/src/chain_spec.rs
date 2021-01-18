@@ -3,7 +3,8 @@ use node_template_runtime::{
 	AccountId, BabeConfig, BalancesConfig, GenesisConfig, GrandpaConfig,
 	SudoConfig, SystemConfig, WASM_BINARY, Signature, StakerStatus,
 	SessionConfig, StakingConfig, opaque::SessionKeys, Balance,
-	currency::DOLLARS, ImOnlineConfig,
+	currency::DOLLARS, ImOnlineConfig, DemocracyConfig, ElectionsConfig,
+	TechnicalCommitteeConfig, CouncilConfig,
 };
 use sp_consensus_babe::AuthorityId as BabeId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
@@ -153,6 +154,8 @@ fn testnet_genesis(
 	_enable_println: bool,
 ) -> GenesisConfig {
 
+	let num_endowed_accounts = endowed_accounts.len();
+
 	const STASH: Balance = 100 * DOLLARS;
 
 	GenesisConfig {
@@ -196,6 +199,24 @@ fn testnet_genesis(
 		}),
 		pallet_im_online: Some(ImOnlineConfig {
 			keys: vec![],
+		}),
+		pallet_treasury: Some(Default::default()),
+		pallet_collective_Instance1: Some(CouncilConfig::default()),
+		pallet_collective_Instance2: Some(TechnicalCommitteeConfig {
+			members: endowed_accounts.iter()
+						.take((num_endowed_accounts + 1) / 2)
+						.cloned()
+						.collect(),
+			phantom: Default::default(),
+		}),
+		pallet_membership_Instance1: Some(Default::default()),
+		pallet_democracy: Some(DemocracyConfig::default()),
+		pallet_elections_phragmen: Some(ElectionsConfig {
+			members: endowed_accounts.iter()
+						.take((num_endowed_accounts + 1) / 2)
+						.cloned()
+						.map(|member| (member, STASH))
+						.collect(),
 		}),
 	}
 }
