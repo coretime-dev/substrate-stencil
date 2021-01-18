@@ -3187,6 +3187,7 @@ dependencies = [
  "frame-benchmarking-cli",
  "jsonrpc-core",
  "node-template-runtime",
+ "pallet-im-online",
  "pallet-transaction-payment-rpc",
  "sc-basic-authorship",
  "sc-cli",
@@ -3284,6 +3285,7 @@ dependencies = [
  "pallet-babe",
  "pallet-balances",
  "pallet-grandpa",
+ "pallet-im-online",
  "pallet-offences",
  "pallet-randomness-collective-flip",
  "pallet-session",
@@ -3552,6 +3554,26 @@ dependencies = [
  "sp-finality-grandpa",
  "sp-runtime",
  "sp-session",
+ "sp-staking",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-im-online"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bca8829f5beda7e8bce0d887e3547da9746d71e5e4523acb79d7fc9d823a09d8"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "pallet-authorship",
+ "pallet-session",
+ "parity-scale-codec",
+ "serde",
+ "sp-application-crypto",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
  "sp-staking",
  "sp-std",
 ]

@@ -25,6 +25,7 @@ node-template-runtime = { path = '../runtime', version = '2.0.0' }
 # Substrate dependencies
 frame-benchmarking = '2.0.0'
 frame-benchmarking-cli = '2.0.0'
+pallet-im-online = '2.0.0'
 pallet-transaction-payment-rpc = '2.0.0'
 sc-basic-authorship = '0.8.0'
 sc-cli = { features = ['wasmtime'], version = '0.8.0' }

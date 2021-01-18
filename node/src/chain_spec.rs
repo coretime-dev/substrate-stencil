@@ -3,10 +3,11 @@ use node_template_runtime::{
 	AccountId, BabeConfig, BalancesConfig, GenesisConfig, GrandpaConfig,
 	SudoConfig, SystemConfig, WASM_BINARY, Signature, StakerStatus,
 	SessionConfig, StakingConfig, opaque::SessionKeys, Balance,
-	currency::DOLLARS,
+	currency::DOLLARS, ImOnlineConfig,
 };
 use sp_consensus_babe::AuthorityId as BabeId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
+use pallet_im_online::sr25519::{AuthorityId as ImOnlineId};
 use sp_runtime::Perbill;
 use sp_runtime::traits::{Verify, IdentifyAccount};
 use sc_service::ChainType;
@@ -34,12 +35,13 @@ pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId where
 }
 
 /// Generate an Babe authority key.
-pub fn authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, BabeId, GrandpaId) {
+pub fn authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, BabeId, GrandpaId, ImOnlineId) {
 	(
 		get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", seed)),
 		get_account_id_from_seed::<sr25519::Public>(seed),
 		get_from_seed::<BabeId>(seed),
 		get_from_seed::<GrandpaId>(seed),
+		get_from_seed::<ImOnlineId>(seed),
 	)
 }
 
@@ -133,14 +135,19 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 fn session_keys(
 	babe: BabeId,
 	grandpa: GrandpaId,
+	im_online: ImOnlineId
 ) -> SessionKeys {
-	SessionKeys { babe, grandpa }
+	SessionKeys {
+		babe,
+		grandpa,
+		im_online
+	}
 }
 
 /// Configure initial storage state for FRAME modules.
 fn testnet_genesis(
 	wasm_binary: &[u8],
-	initial_authorities: Vec<(AccountId, AccountId, BabeId, GrandpaId)>,
+	initial_authorities: Vec<(AccountId, AccountId, BabeId, GrandpaId, ImOnlineId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
 	_enable_println: bool,
@@ -173,6 +180,7 @@ fn testnet_genesis(
 				(x.0.clone(), x.0.clone(), session_keys(
 					x.2.clone(),
 					x.3.clone(),
+					x.4.clone(),
 				))
 			}).collect::<Vec<_>>(),
 		}),
@@ -185,6 +193,9 @@ fn testnet_genesis(
 			invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
 			slash_reward_fraction: Perbill::from_percent(10),
 			.. Default::default()
+		}),
+		pallet_im_online: Some(ImOnlineConfig {
+			keys: vec![],
 		}),
 	}
 }
