@@ -40,7 +40,10 @@ pub use pallet_balances::Call as BalancesCall;
 pub use sp_runtime::{Permill, Perbill, Percent};
 pub use frame_support::{
 	construct_runtime, parameter_types, StorageValue,
-	traits::{KeyOwnerProofSystem, Randomness, OnUnbalanced, Currency, LockIdentifier, Imbalance},
+	traits::{
+		KeyOwnerProofSystem, Randomness, OnUnbalanced,
+		Currency, LockIdentifier, Imbalance, Filter,
+	},
 	weights::{
 		Weight, IdentityFee,
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
@@ -190,6 +193,14 @@ pub fn native_version() -> NativeVersion {
 	}
 }
 
+pub struct BaseFilter;
+impl Filter<Call> for BaseFilter {
+	fn filter(call: &Call) -> bool {
+		// Avoid processing transactions from template module.
+		!matches!(call, Call::TemplateModule(_))
+	}
+}
+
 pub struct Author;
 impl OnUnbalanced<NegativeImbalance> for Author {
 	fn on_nonzero_unbalanced(amount: NegativeImbalance) {
@@ -231,7 +242,7 @@ parameter_types! {
 
 impl frame_system::Trait for Runtime {
 	/// The basic call filter to use in dispatchable.
-	type BaseCallFilter = ();
+	type BaseCallFilter = BaseFilter;
 	/// The identifier used to distinguish between accounts.
 	type AccountId = AccountId;
 	/// The aggregated dispatch type that is available for extrinsics.
