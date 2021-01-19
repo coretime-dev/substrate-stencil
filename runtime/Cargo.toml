@@ -1,6 +1,6 @@
 [package]
 name = "node-template-runtime"
-authors = ["{{authors}}"]
+authors = ["kaichao"]
 edition = '2018'
 homepage = 'https://substrate.dev'
 license = 'Unlicense'

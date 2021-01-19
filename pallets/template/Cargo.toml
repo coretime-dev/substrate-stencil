@@ -1,5 +1,5 @@
 [package]
-authors = ["{{authors}}"]
+authors = ["kaichao"]
 description = 'FRAME pallet template'
 edition = '2018'
 homepage = 'https://substrate.dev'

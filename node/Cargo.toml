@@ -1,6 +1,6 @@
 [package]
-name = "{{project-name}}"
-authors = ["{{authors}}"]
+name = "my-project"
+authors = ["kaichao"]
 build = 'build.rs'
 description = 'Substrate node template'
 edition = '2018'
