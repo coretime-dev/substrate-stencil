@@ -42,7 +42,7 @@ cargo install cargo-generate
 Generate your project based the template:
 
 ```
-cargo generate --git https://github.com/kaichaosun/substrate-stencil.git --name my-project
+cargo generate --git https://github.com/kaichaosun/substrate-stencil.git --branch v2.0.0 --name my-project
 
 cd my-project
 ```
