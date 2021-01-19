@@ -3,7 +3,6 @@
   "id": "stencil_testnet",
   "chainType": "Live",
   "bootNodes": [
-    "/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWGqyQzrahnbLFk6n2WYU3VKxM7kNnwZEDARkGZyvSK7Dk"
   ],
   "telemetryEndpoints": [
     [

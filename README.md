@@ -140,12 +140,20 @@ This command will firstly compile your code, and then start a local development 
        --chain my-staging-raw.json \
        --name bootnode1
   ```
-* Start your validators
+* Start your initial validators,
   ```shell
   ./target/release/<your-project-name> \
       --base-path  /tmp/validator1 \
       --chain   my-staging-raw.json \
       --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
+	  --port 30336 \
+	  --ws-port 9947 \
+	  --rpc-port 9936 \
       --name  validator1 \
       --validator 
   ```
+* [Insert session keys](https://substrate.dev/docs/en/tutorials/start-a-private-network/customchain#add-keys-to-keystore)
+* Attract enough validators from community in waiting
+* Call force_new_era in staking pallet with sudo, rotate to PoS validators
+* Enable governance, and remove sudo
+* Enable transfer and other functions 
