@@ -18,6 +18,7 @@ substrate-build-script-utils = '2.0.0'
 [dependencies]
 jsonrpc-core = '15.0.0'
 structopt = '0.3.8'
+hex-literal = "0.3.1"
 
 # local dependencies
 node-template-runtime = { path = '../runtime', version = '2.0.0' }
@@ -26,6 +27,7 @@ node-template-runtime = { path = '../runtime', version = '2.0.0' }
 frame-benchmarking = '2.0.0'
 frame-benchmarking-cli = '2.0.0'
 pallet-im-online = '2.0.0'
+pallet-staking = '2.0.0'
 pallet-transaction-payment-rpc = '2.0.0'
 sc-basic-authorship = '0.8.0'
 sc-cli = { features = ['wasmtime'], version = '0.8.0' }
@@ -52,6 +54,7 @@ sp-core = '2.0.0'
 sp-finality-grandpa = '2.0.0'
 sp-inherents = '2.0.0'
 sp-runtime = '2.0.0'
+sc-telemetry = '2.0.0'
 sp-transaction-pool = '2.0.0'
 substrate-frame-rpc-system = '2.0.0'
 
