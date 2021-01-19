@@ -130,41 +130,13 @@ Secret Key URI `owner word vocal dose decline sunset battle example forget excit
 
 ## Node key
 
-➜  substrate git:(master) ✗ ./target/release/subkey --ed25519 inspect "$SECRET//1//node-key"
-Secret Key URI `owner word vocal dose decline sunset battle example forget excite gentle waste//1//node-key` is account:
-  Network ID/version: substrate
-  Secret seed:        0xc12b6d18942f5ee8528c8e2baf4e147b5c5c18710926ea492d09cbd9f6c9f82a
-  Public key (hex):   0x1ce5f00ef6e89374afb625f1ae4c1546d31234e87e3c3f51a62b91dd6bfa57df
-  Account ID:         0x1ce5f00ef6e89374afb625f1ae4c1546d31234e87e3c3f51a62b91dd6bfa57df
-  SS58 Address:       5CibWAiYURpoy3o8SsA1hS75ypxCzGrT9mt3ufCerfQYCEC6
-
-  kaichaosun@build-host:~/remote-builds/substrate$ ./target/release/subkey --ed25519 inspect "$SECRET//2//node-key"
-  Secret Key URI `//2//node-key` is account:
-    Network ID/version: substrate
-    Secret seed:        0x6ce3be907dbcabf20a9a5a60a712b4256a54196000a8ed4050d352bc113f8c58
-    Public key (hex):   0xdacde7714d8551f674b8bb4b54239383c76a2b286fa436e93b2b7eb226bf4de7
-    Account ID:         0xdacde7714d8551f674b8bb4b54239383c76a2b286fa436e93b2b7eb226bf4de7
-    SS58 Address:       5H1bTmUExYZZfHQ5S6RJ6k1qG4H7e1WHsimKXQc1Rz2j982o
-
-    substrate git:(restrict-node-connection) ✗ ./target/release/subkey --ed25519 inspect "$SECRET//3//node-key"
-    Secret Key URI `//3//node-key` is account:
-      Network ID/version: substrate
-      Secret seed:        0x3a9d5b35b9fb4c42aafadeca046f6bf56107bd2579687f069b42646684b94d9e
-      Public key (hex):   0x876a7b4984f98006dc8d666e28b60de307309835d775e7755cc770328cdacf2e
-      Account ID:         0x876a7b4984f98006dc8d666e28b60de307309835d775e7755cc770328cdacf2e
-      SS58 Address:       5F8FxEwFeyRkLyvBZSPVYb4tJ5VnNamQ1zR682x3CUYWnYF6
-
-
-      kaichaosun@build-host:~/remote-builds/substrate$ ./target/release/subkey  inspect-key --scheme Ed25519 "$SECRET//4//node-key"
-    Secret Key URI `//4//node-key` is account:
-      Secret seed:      0xa99331ff4f0e0a0434a6263da0a5823ea3afcfffe590c9f3014e6cf620f2b19a
-      Public key (hex): 0xc81bc1d7057a1511eb9496f056f6f53cdfe0e14c8bd5ffca47c70a8d76c1326d
-      Account ID:       0xc81bc1d7057a1511eb9496f056f6f53cdfe0e14c8bd5ffca47c70a8d76c1326d
-      SS58 Address:     5Gb5gNntXHysDV4DkLhSAd9iLuaXAajbTs44MASpxoZ42Z38
+➜  substrate git:(master) ✗ ./target/release/substrate key generate-node-key
+12D3KooWPvQ9JoKKLsx3EnZW8uPBZVrhmMD64VmU9wDt2AfHjkTT
+fdbc5b1f108f3d03a8dffecc544913786a445a7f00178f862d51b738024ff245
 
 ----
 
-## imonline key:
+## im-online key:
 
   ➜  substrate git:(master) ✗ for i in 1 2 3 4; do for j in im_online; do ./target/release/subkey --sr25519 inspect "$SECRET//$i//$j"; done; done
   Secret Key URI `owner word vocal dose decline sunset battle example forget excite gentle waste//1//im_online` is account:
