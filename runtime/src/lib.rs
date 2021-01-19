@@ -308,7 +308,7 @@ impl pallet_babe::Trait for Runtime {
 	type EpochDuration = EpochDuration;
 	type ExpectedBlockTime = ExpectedBlockTime;
 	// Change SameAuthoritiesForever to ExternalTrigger to enable elections in PoS.
-	type EpochChangeTrigger = pallet_babe::SameAuthoritiesForever;
+	type EpochChangeTrigger = pallet_babe::ExternalTrigger;
 
 	type KeyOwnerProofSystem = Historical;
 
@@ -609,7 +609,7 @@ impl pallet_collective::Trait<TechnicalCollective> for Runtime {
 parameter_types! {
 	pub const CandidacyBond: Balance = 10 * DOLLARS;
 	pub const VotingBond: Balance = 1 * DOLLARS;
-	pub const TermDuration: BlockNumber = 7 * DAYS;
+	pub const TermDuration: BlockNumber = 1 * HOURS;
 	pub const DesiredMembers: u32 = 13;
 	pub const DesiredRunnersUp: u32 = 7;
 	pub const ElectionsPhragmenModuleId: LockIdentifier = *b"phrelect";
