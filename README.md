@@ -20,6 +20,8 @@ This template includes the minimum required components to start a PoS testnet, i
 * Staking related pallets: staking, session, authorship, im-online, offences, utility
 * Governance related pallets: collective, membership, elections-phragmen, democracy, treasure
 
+**Notes:** The code is un-audited and not production ready, use it at your own risk.
+
 ## 🚴 Usage
 
 ### 📦 Installation
