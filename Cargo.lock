@@ -3625,6 +3625,7 @@ dependencies = [
  "frame-system-rpc-runtime-api",
  "frame-try-runtime",
  "hex-literal",
+ "log",
  "node-primitives",
  "pallet-authorship",
  "pallet-babe",
@@ -3632,6 +3633,7 @@ dependencies = [
  "pallet-balances",
  "pallet-election-provider-multi-phase",
  "pallet-grandpa",
+ "pallet-im-online",
  "pallet-offences",
  "pallet-offences-benchmarking",
  "pallet-randomness-collective-flip",
@@ -3973,6 +3975,7 @@ name = "pallet-im-online"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
 dependencies = [
+ "frame-benchmarking",
  "frame-support",
  "frame-system",
  "log",
@@ -7258,6 +7261,7 @@ dependencies = [
  "jsonrpc-core",
  "node-primitives",
  "node-template-runtime",
+ "pallet-im-online",
  "pallet-transaction-payment-rpc",
  "rand 0.8.5",
  "sc-basic-authorship",
