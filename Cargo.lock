@@ -219,9 +219,9 @@ dependencies = [
 
 [[package]]
 name = "async-std"
-version = "1.10.0"
+version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8056f1455169ab86dd47b47391e4ab0cbd25410a70e9fe675544f49bafaf952"
+checksum = "52580991739c5cdb36cde8b2a516371c0a3b70dda36d916cc08b82372916808c"
 dependencies = [
  "async-channel",
  "async-global-executor",
@@ -266,9 +266,9 @@ checksum = "30696a84d817107fc028e049980e09d5e140e8da8f1caeb17e8e950658a3cea9"
 
 [[package]]
 name = "async-trait"
-version = "0.1.52"
+version = "0.1.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "061a7acccaa286c011ddc30970520b98fa40e00c9d644633fb26b5fc63a265e3"
+checksum = "ed6aa3524a2dfcf9fe180c51eae2b58738348d819517ceadf95789c51fff7600"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1523,6 +1523,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "frame-election-provider-support"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-arithmetic",
+ "sp-npos-elections",
+ "sp-std",
+]
+
+[[package]]
 name = "frame-executive"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
@@ -2131,9 +2145,9 @@ checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "hyper"
-version = "0.14.17"
+version = "0.14.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "043f0e083e9901b6cc658a77d1eb86f4fc650bbb977a4337dd63192826aa85dd"
+checksum = "b26ae0a80afebe130861d90abf98e3814a4f28a4c6ffeb5ab8ebb2be311e0ef2"
 dependencies = [
  "bytes 1.1.0",
  "futures-channel",
@@ -3197,9 +3211,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.14"
+version = "0.4.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51b9bbe6c47d51fc3e1a9b945965946b4c44142ab8792c50835a980d362c2710"
+checksum = "6389c490849ff5bc16be905ae24bc913a9c8892e19b2341dbc175e14c341c2b8"
 dependencies = [
  "cfg-if 1.0.0",
  "value-bag",
@@ -3595,6 +3609,7 @@ version = "2.0.0"
 dependencies = [
  "parity-scale-codec",
  "sp-core",
+ "sp-runtime",
 ]
 
 [[package]]
@@ -3602,6 +3617,7 @@ name = "node-template-runtime"
 version = "4.0.0-dev"
 dependencies = [
  "frame-benchmarking",
+ "frame-election-provider-support",
  "frame-executive",
  "frame-support",
  "frame-system",
@@ -3611,9 +3627,14 @@ dependencies = [
  "hex-literal",
  "node-primitives",
  "pallet-babe",
+ "pallet-bags-list",
  "pallet-balances",
+ "pallet-election-provider-multi-phase",
  "pallet-grandpa",
  "pallet-randomness-collective-flip",
+ "pallet-session",
+ "pallet-staking",
+ "pallet-staking-reward-curve",
  "pallet-sudo",
  "pallet-template",
  "pallet-timestamp",
@@ -3626,9 +3647,12 @@ dependencies = [
  "sp-consensus-babe",
  "sp-core",
  "sp-inherents",
+ "sp-io",
+ "sp-npos-elections",
  "sp-offchain",
  "sp-runtime",
  "sp-session",
+ "sp-staking",
  "sp-std",
  "sp-transaction-pool",
  "sp-version",
@@ -3865,6 +3889,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-bags-list"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
+dependencies = [
+ "frame-election-provider-support",
+ "frame-support",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-balances"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
@@ -3877,6 +3916,29 @@ dependencies = [
  "scale-info",
  "sp-runtime",
  "sp-std",
+]
+
+[[package]]
+name = "pallet-election-provider-multi-phase"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
+dependencies = [
+ "frame-benchmarking",
+ "frame-election-provider-support",
+ "frame-support",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "rand 0.7.3",
+ "scale-info",
+ "sp-arithmetic",
+ "sp-core",
+ "sp-io",
+ "sp-npos-elections",
+ "sp-runtime",
+ "sp-std",
+ "static_assertions",
+ "strum",
 ]
 
 [[package]]
@@ -3935,6 +3997,38 @@ dependencies = [
  "sp-staking",
  "sp-std",
  "sp-trie",
+]
+
+[[package]]
+name = "pallet-staking"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
+dependencies = [
+ "frame-election-provider-support",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-authorship",
+ "pallet-session",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-application-crypto",
+ "sp-io",
+ "sp-runtime",
+ "sp-staking",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-staking-reward-curve"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
+dependencies = [
+ "proc-macro-crate 1.1.3",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -4580,9 +4674,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.16"
+version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4af2ec4714533fcdf07e886f17025ace8b997b9ce51204ee69b6da831c3da57"
+checksum = "632d02bff7f874a36f33ea8bb416cd484b90cc66c1194b1a1110d067a7013f58"
 dependencies = [
  "proc-macro2",
 ]
@@ -4717,9 +4811,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.2.11"
+version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8380fe0152551244f0747b1bf41737e0f8a74f97a14ccefd1148187271634f3c"
+checksum = "8ae183fc1b06c149f0c1793e1eb447c8b04bfe46d48e9e48bfb8d2d7ed64ecf0"
 dependencies = [
  "bitflags",
 ]
@@ -6639,6 +6733,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "sp-npos-elections"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
+dependencies = [
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-arithmetic",
+ "sp-core",
+ "sp-npos-elections-solution-type",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "sp-npos-elections-solution-type"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
+dependencies = [
+ "proc-macro-crate 1.1.3",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "sp-offchain"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.18#fc3fd073d3a0acf9933c3994b660ebd7b5833f65"
@@ -7058,6 +7178,7 @@ dependencies = [
  "node-primitives",
  "node-template-runtime",
  "pallet-transaction-payment-rpc",
+ "rand 0.8.5",
  "sc-basic-authorship",
  "sc-chain-spec",
  "sc-cli",

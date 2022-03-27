@@ -6,6 +6,7 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
+use codec::Decode;
 use pallet_grandpa::{
 	fg_primitives, AuthorityId as GrandpaId, AuthorityList as GrandpaAuthorityList,
 };
@@ -13,23 +14,36 @@ use sp_api::impl_runtime_apis;
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
-	traits::{AccountIdLookup, BlakeTwo256, Block as BlockT, IdentifyAccount, NumberFor, Verify},
-	transaction_validity::{TransactionSource, TransactionValidity},
-	ApplyExtrinsicResult, MultiSignature,
+	curve::PiecewiseLinear,
+	traits::{
+		AccountIdLookup, BlakeTwo256, Block as BlockT, NumberFor,
+		OpaqueKeys,
+	},
+	transaction_validity::{TransactionSource, TransactionValidity, TransactionPriority},
+	ApplyExtrinsicResult,
 };
 use sp_std::prelude::*;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
-use node_primitives::Moment;
+use node_primitives::*;
+use frame_system::{
+	EnsureRoot
+};
+use frame_election_provider_support::{onchain, ExtendedBalance};
+use pallet_election_provider_multi_phase::SolutionAccuracyOf;
 
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
 	construct_runtime, parameter_types,
-	traits::{ConstU128, ConstU32, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo},
+	pallet_prelude::Get,
+	traits::{
+		ConstU128, ConstU32, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo,
+		U128CurrencyToVote, EnsureOneOf,
+	},
 	weights::{
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
-		IdentityFee, Weight,
+		IdentityFee, Weight, DispatchClass,
 	},
 	StorageValue,
 };
@@ -39,28 +53,16 @@ use pallet_transaction_payment::CurrencyAdapter;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
+#[cfg(any(feature = "std", test))]
+pub use pallet_staking::StakerStatus;
+
+pub mod constants;
+use constants::currency::*;
+
+mod voter_bags;
 
 /// Import the template pallet.
 pub use pallet_template;
-
-/// An index to a block.
-pub type BlockNumber = u32;
-
-/// Alias to 512-bit hash when used in the context of a transaction signature on the chain.
-pub type Signature = MultiSignature;
-
-/// Some way of identifying an account on the chain. We intentionally make it equivalent
-/// to the public key of our transaction signing scheme.
-pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
-
-/// Balance of an account.
-pub type Balance = u128;
-
-/// Index of a transaction in the chain.
-pub type Index = u32;
-
-/// A hash of some data used by the chain.
-pub type Hash = sp_core::H256;
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -221,7 +223,7 @@ parameter_types! {
 	//       Attempting to do so will brick block production.
 	pub const EpochDuration: u64 = EPOCH_DURATION_IN_SLOTS;
 	pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
-	pub const ReportLongevity: u64 = 24 * 28 * 6 * EpochDuration::get(); // BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
+	pub const ReportLongevity: u64 = 24 * 28 * 6 * EpochDuration::get(); // TODO: BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
 	pub const MaxAuthorities: u32 = 100;
 }
 
@@ -229,9 +231,9 @@ impl pallet_babe::Config for Runtime {
 	type EpochDuration = EpochDuration;
 	type ExpectedBlockTime = ExpectedBlockTime;
 	type EpochChangeTrigger = pallet_babe::ExternalTrigger;
-	type DisabledValidators = (); // Session
+	type DisabledValidators = Session;
 
-	type KeyOwnerProofSystem = (); // Historical
+	type KeyOwnerProofSystem = Historical;
 
 	type KeyOwnerProof = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
 		KeyTypeId,
@@ -253,7 +255,7 @@ impl pallet_grandpa::Config for Runtime {
 	type Event = Event;
 	type Call = Call;
 
-	type KeyOwnerProofSystem = ();
+	type KeyOwnerProofSystem = Historical;
 
 	type KeyOwnerProof =
 		<Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
@@ -312,6 +314,218 @@ impl pallet_sudo::Config for Runtime {
 	type Call = Call;
 }
 
+/// Maximum number of iterations for balancing that will be executed in the embedded OCW
+/// miner of election provider multi phase.
+pub const MINER_MAX_ITERATIONS: u32 = 10;
+
+/// A source of random balance for NposSolver, which is meant to be run by the OCW election miner.
+pub struct OffchainRandomBalancing;
+impl Get<Option<(usize, ExtendedBalance)>> for OffchainRandomBalancing {
+	fn get() -> Option<(usize, ExtendedBalance)> {
+		use sp_runtime::traits::TrailingZeroInput;
+		let iters = match MINER_MAX_ITERATIONS {
+			0 => 0,
+			max @ _ => {
+				let seed = sp_io::offchain::random_seed();
+				let random = <u32>::decode(&mut TrailingZeroInput::new(&seed))
+					.expect("input is padded with zeroes; qed") %
+					max.saturating_add(1);
+				random as usize
+			},
+		};
+
+		Some((iters, 0))
+	}
+}
+
+impl onchain::Config for Runtime {
+	type Accuracy = Perbill;
+	type DataProvider = <Self as pallet_election_provider_multi_phase::Config>::DataProvider;
+}
+
+impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
+where
+	Call: From<C>,
+{
+	type Extrinsic = UncheckedExtrinsic;
+	type OverarchingCall = Call;
+}
+
+/// The numbers configured here could always be more than the the maximum limits of staking pallet
+/// to ensure election snapshot will not run out of memory. For now, we set them to smaller values
+/// since the staking is bounded and the weight pipeline takes hours for this single pallet.
+pub struct ElectionProviderBenchmarkConfig;
+impl pallet_election_provider_multi_phase::BenchmarkingConfig for ElectionProviderBenchmarkConfig {
+	const VOTERS: [u32; 2] = [1000, 2000];
+	const TARGETS: [u32; 2] = [500, 1000];
+	const ACTIVE_VOTERS: [u32; 2] = [500, 800];
+	const DESIRED_TARGETS: [u32; 2] = [200, 400];
+	const SNAPSHOT_MAXIMUM_VOTERS: u32 = 1000;
+	const MINER_MAXIMUM_VOTERS: u32 = 1000;
+	const MAXIMUM_TARGETS: u32 = 300;
+}
+
+parameter_types! {
+	// phase durations. 1/4 of the last session for each.
+	pub const SignedPhase: u32 = EPOCH_DURATION_IN_BLOCKS / 4;
+	pub const UnsignedPhase: u32 = EPOCH_DURATION_IN_BLOCKS / 4;
+
+	// signed config
+	pub const SignedRewardBase: Balance = 1 * DOLLARS;
+	pub const SignedDepositBase: Balance = 1 * DOLLARS;
+	pub const SignedDepositByte: Balance = 1 * CENTS;
+
+	pub SolutionImprovementThreshold: Perbill = Perbill::from_rational(1u32, 10_000);
+
+	/// We prioritize im-online heartbeats over election solution submission.
+	pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
+	// miner configs
+	pub const MultiPhaseUnsignedPriority: TransactionPriority = StakingUnsignedPriority::get() - 1u64;
+	pub MinerMaxWeight: Weight = BlockWeights::get()
+		.get(DispatchClass::Normal)
+		.max_extrinsic.expect("Normal extrinsics have a weight limit configured; qed")
+		.saturating_sub(BlockExecutionWeight::get());
+	// Solution can occupy 90% of normal block size
+	pub MinerMaxLength: u32 = Perbill::from_rational(9u32, 10) *
+		*BlockLength::get()
+		.max
+		.get(DispatchClass::Normal);
+}
+
+impl pallet_election_provider_multi_phase::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type EstimateCallFee = TransactionPayment;
+	type SignedPhase = SignedPhase;
+	type UnsignedPhase = UnsignedPhase;
+	type SolutionImprovementThreshold = SolutionImprovementThreshold;
+	type OffchainRepeat = OffchainRepeat;
+	type MinerMaxWeight = MinerMaxWeight;
+	type MinerMaxLength = MinerMaxLength;
+	type MinerTxPriority = MultiPhaseUnsignedPriority;
+	type SignedMaxSubmissions = ConstU32<10>;
+	type SignedRewardBase = SignedRewardBase;
+	type SignedDepositBase = SignedDepositBase;
+	type SignedDepositByte = SignedDepositByte;
+	type SignedDepositWeight = ();
+	type SignedMaxWeight = MinerMaxWeight;
+	type SlashHandler = (); // burn slashes
+	type RewardHandler = (); // nothing to do upon rewards
+	type DataProvider = Staking;
+	type Solution = NposSolution16;
+	type Fallback = pallet_election_provider_multi_phase::NoFallback<Self>;
+	type GovernanceFallback = onchain::OnChainSequentialPhragmen<Self>;
+	type Solver = frame_election_provider_support::SequentialPhragmen<
+		AccountId,
+		SolutionAccuracyOf<Self>,
+		OffchainRandomBalancing,
+	>;
+	type ForceOrigin = EnsureRoot<AccountId>; // TODO EnsureRootOrHalfCouncil
+	type BenchmarkingConfig = ElectionProviderBenchmarkConfig;
+	type WeightInfo = pallet_election_provider_multi_phase::weights::SubstrateWeight<Self>;
+	// BagsList allows a practically unbounded count of nominators to participate in NPoS elections.
+	// To ensure we respect memory limits when using the BagsList this must be set to a number of
+	// voters we know can fit into a single vec allocation.
+	type VoterSnapshotPerBlock = ConstU32<10_000>;
+}
+
+parameter_types! {
+	pub const BagThresholds: &'static [u64] = &voter_bags::THRESHOLDS;
+}
+
+impl pallet_bags_list::Config for Runtime {
+	type Event = Event;
+	type VoteWeightProvider = Staking;
+	type WeightInfo = pallet_bags_list::weights::SubstrateWeight<Runtime>;
+	type BagThresholds = BagThresholds;
+}
+
+impl pallet_session::Config for Runtime {
+	type Event = Event;
+	type ValidatorId = <Self as frame_system::Config>::AccountId;
+	type ValidatorIdOf = pallet_staking::StashOf<Self>;
+	type ShouldEndSession = Babe;
+	type NextSessionRotation = Babe;
+	type SessionManager = pallet_session::historical::NoteHistoricalRoot<Self, Staking>;
+	type SessionHandler = <opaque::SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
+	type Keys = opaque::SessionKeys;
+	type WeightInfo = pallet_session::weights::SubstrateWeight<Runtime>;
+}
+
+impl pallet_session::historical::Config for Runtime {
+	type FullIdentification = pallet_staking::Exposure<AccountId, Balance>;
+	type FullIdentificationOf = pallet_staking::ExposureOf<Runtime>;
+}
+
+pallet_staking_reward_curve::build! {
+	const REWARD_CURVE: PiecewiseLinear<'static> = curve!(
+		min_inflation: 0_025_000,
+		max_inflation: 0_100_000,
+		ideal_stake: 0_500_000,
+		falloff: 0_050_000,
+		max_piece_count: 40,
+		test_precision: 0_005_000,
+	);
+}
+
+sp_npos_elections::generate_solution_type!(
+	#[compact]
+	pub struct NposSolution16::<
+		VoterIndex = u32,
+		TargetIndex = u16,
+		Accuracy = sp_runtime::PerU16,
+	>(16)
+);
+
+pub struct StakingBenchmarkingConfig;
+impl pallet_staking::BenchmarkingConfig for StakingBenchmarkingConfig {
+	type MaxNominators = ConstU32<1000>;
+	type MaxValidators = ConstU32<1000>;
+}
+
+parameter_types! {
+	pub MaxNominations: u32 = <NposSolution16 as sp_npos_elections::NposSolution>::LIMIT as u32;
+	pub const SessionsPerEra: sp_staking::SessionIndex = 6;
+	pub const BondingDuration: sp_staking::EraIndex = 24 * 28;
+	pub const SlashDeferDuration: sp_staking::EraIndex = 24 * 7; // 1/4 the bonding duration.
+	pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
+	pub const MaxNominatorRewardedPerValidator: u32 = 256;
+	pub const OffendingValidatorsThreshold: Perbill = Perbill::from_percent(17);
+	pub OffchainRepeat: BlockNumber = 5;
+}
+
+impl pallet_staking::Config for Runtime {
+	type MaxNominations = MaxNominations;
+	type Currency = Balances;
+	type UnixTime = Timestamp;
+	type CurrencyToVote = U128CurrencyToVote;
+	type RewardRemainder = (); // TODO Treasury
+	type Event = Event;
+	type Slash = (); // TODO Treasury send the slashed funds to the treasury.
+	type Reward = (); // rewards are minted from the void
+	type SessionsPerEra = SessionsPerEra;
+	type BondingDuration = BondingDuration;
+	type SlashDeferDuration = SlashDeferDuration;
+	/// A super-majority of the council can cancel the slash.
+	type SlashCancelOrigin = EnsureRoot<AccountId>; // TODO: EnsureOneOf<
+	// 	EnsureRoot<AccountId>,
+	// 	pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 3, 4>,
+	// >;
+	type SessionInterface = Self;
+	type EraPayout = pallet_staking::ConvertCurve<RewardCurve>;
+	type NextNewSession = (); // TODO: Session
+	type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
+	type OffendingValidatorsThreshold = OffendingValidatorsThreshold;
+	type ElectionProvider = ElectionProviderMultiPhase;
+	type GenesisElectionProvider = onchain::OnChainSequentialPhragmen<Self>;
+	// Alternatively, use pallet_staking::UseNominatorsMap<Runtime> to just use the nominators map.
+	// Note that the aforementioned does not scale to a very large number of nominators.
+	type SortedListProvider = BagsList;
+	type MaxUnlockingChunks = ConstU32<32>;
+	type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
+	type BenchmarkingConfig = StakingBenchmarkingConfig;
+}
+
 /// Configure the pallet-template in pallets/template.
 impl pallet_template::Config for Runtime {
 	type Event = Event;
@@ -327,9 +541,14 @@ construct_runtime!(
 		System: frame_system,
 		RandomnessCollectiveFlip: pallet_randomness_collective_flip,
 		Timestamp: pallet_timestamp,
+		Balances: pallet_balances,
 		Babe: pallet_babe,
 		Grandpa: pallet_grandpa,
-		Balances: pallet_balances,
+		ElectionProviderMultiPhase: pallet_election_provider_multi_phase,
+		Staking: pallet_staking,
+		Session: pallet_session,
+		BagsList: pallet_bags_list,
+		Historical: pallet_session::historical::{Pallet},
 		TransactionPayment: pallet_transaction_payment,
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
@@ -469,14 +688,13 @@ impl_runtime_apis! {
 
 		fn generate_key_ownership_proof(
 			_slot: sp_consensus_babe::Slot,
-			_authority_id: sp_consensus_babe::AuthorityId,
+			authority_id: sp_consensus_babe::AuthorityId,
 		) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
-			// use codec::Encode;
+			use codec::Encode;
 
-			// Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
-			// 	.map(|p| p.encode())
-			// 	.map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
-			None
+			Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
+				.map(|p| p.encode())
+				.map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
 		}
 
 		fn submit_report_equivocation_unsigned_extrinsic(
