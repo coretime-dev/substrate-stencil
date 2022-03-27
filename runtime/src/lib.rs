@@ -526,6 +526,17 @@ impl pallet_staking::Config for Runtime {
 	type BenchmarkingConfig = StakingBenchmarkingConfig;
 }
 
+parameter_types! {
+	pub const UncleGenerations: BlockNumber = 5;
+}
+
+impl pallet_authorship::Config for Runtime {
+	type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Babe>;
+	type UncleGenerations = UncleGenerations;
+	type FilterUncle = ();
+	type EventHandler = Staking;
+}
+
 /// Configure the pallet-template in pallets/template.
 impl pallet_template::Config for Runtime {
 	type Event = Event;
@@ -541,6 +552,9 @@ construct_runtime!(
 		System: frame_system,
 		RandomnessCollectiveFlip: pallet_randomness_collective_flip,
 		Timestamp: pallet_timestamp,
+		// Authorship must be before session in order to note author in the correct session and era
+		// for im-online and staking.
+		Authorship: pallet_authorship,
 		Balances: pallet_balances,
 		Babe: pallet_babe,
 		Grandpa: pallet_grandpa,

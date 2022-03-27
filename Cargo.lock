@@ -3626,6 +3626,7 @@ dependencies = [
  "frame-try-runtime",
  "hex-literal",
  "node-primitives",
+ "pallet-authorship",
  "pallet-babe",
  "pallet-bags-list",
  "pallet-balances",
