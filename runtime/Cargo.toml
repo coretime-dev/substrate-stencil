@@ -35,6 +35,8 @@ pallet-election-provider-multi-phase = { version = "4.0.0-dev", default-features
 frame-election-provider-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.18" }
 frame-executive = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.18" }
 pallet-utility = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.18" }
+pallet-offences = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.18" }
+pallet-offences-benchmarking = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.18", optional = true }
 
 # primitives
 node-primitives = { version = "2.0.0", default-features = false, path = "../primitives" }
@@ -90,6 +92,7 @@ std = [
 	"pallet-bags-list/std",
 	"pallet-session/std",
 	"pallet-staking/std",
+	"pallet-offences/std",
 	"pallet-election-provider-multi-phase/std",
 	"pallet-utility/std",
 	"sp-api/std",
@@ -116,5 +119,7 @@ runtime-benchmarks = [
 	"pallet-balances/runtime-benchmarks",
 	"pallet-template/runtime-benchmarks",
 	"pallet-timestamp/runtime-benchmarks",
+	"pallet-utility/runtime-benchmarks",
+	"pallet-offences-benchmarking",
 	"sp-runtime/runtime-benchmarks",
 ]

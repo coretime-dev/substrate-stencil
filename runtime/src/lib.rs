@@ -223,7 +223,7 @@ parameter_types! {
 	//       Attempting to do so will brick block production.
 	pub const EpochDuration: u64 = EPOCH_DURATION_IN_SLOTS;
 	pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
-	pub const ReportLongevity: u64 = 24 * 28 * 6 * EpochDuration::get(); // TODO: BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
+	pub const ReportLongevity: u64 = BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
 	pub const MaxAuthorities: u32 = 100;
 }
 
@@ -245,7 +245,7 @@ impl pallet_babe::Config for Runtime {
 		pallet_babe::AuthorityId,
 	)>>::IdentificationTuple;
 
-	type HandleEquivocation = (); // pallet_babe::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
+	type HandleEquivocation = pallet_babe::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
 
 	type WeightInfo = ();
 	type MaxAuthorities = MaxAuthorities;
@@ -265,7 +265,11 @@ impl pallet_grandpa::Config for Runtime {
 		GrandpaId,
 	)>>::IdentificationTuple;
 
-	type HandleEquivocation = ();
+	type HandleEquivocation = pallet_grandpa::EquivocationHandler<
+		Self::KeyOwnerIdentification,
+		Offences,
+		ReportLongevity,
+	>;
 
 	type WeightInfo = ();
 	type MaxAuthorities = ConstU32<32>;
@@ -544,6 +548,12 @@ impl pallet_utility::Config for Runtime {
 	type WeightInfo = pallet_utility::weights::SubstrateWeight<Runtime>;
 }
 
+impl pallet_offences::Config for Runtime {
+	type Event = Event;
+	type IdentificationTuple = pallet_session::historical::IdentificationTuple<Self>;
+	type OnOffenceHandler = Staking;
+}
+
 /// Configure the pallet-template in pallets/template.
 impl pallet_template::Config for Runtime {
 	type Event = Event;
@@ -571,6 +581,7 @@ construct_runtime!(
 		Session: pallet_session,
 		BagsList: pallet_bags_list,
 		Historical: pallet_session::historical::{Pallet},
+		Offences: pallet_offences,
 		TransactionPayment: pallet_transaction_payment,
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
@@ -618,6 +629,7 @@ mod benches {
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
 		[pallet_utility, Utility]
+		[pallet_offences, OffencesBench::<Runtime>]
 		[pallet_template, TemplateModule]
 	);
 }
@@ -804,6 +816,12 @@ impl_runtime_apis! {
 		) {
 			use frame_benchmarking::{baseline, Benchmarking, BenchmarkList};
 			use frame_support::traits::StorageInfoTrait;
+
+			// Trying to add benchmarks directly to the offences Pallet caused cyclic dependency
+			// issues. To get around that, we separated the Session benchmarks into its own crate,
+			// which is why we need these two lines below.
+			use pallet_offences_benchmarking::Pallet as OffencesBench;
+
 			use frame_system_benchmarking::Pallet as SystemBench;
 			use baseline::Pallet as BaselineBench;
 
@@ -822,6 +840,13 @@ impl_runtime_apis! {
 
 			use frame_system_benchmarking::Pallet as SystemBench;
 			use baseline::Pallet as BaselineBench;
+
+			// Trying to add benchmarks directly to the offences Pallet caused cyclic dependency
+			// issues. To get around that, we separated the Session benchmarks into its own crate,
+			// which is why we need these two lines below.
+			use pallet_offences_benchmarking::Pallet as OffencesBench;
+
+			impl pallet_offences_benchmarking::Config for Runtime {}
 
 			impl frame_system_benchmarking::Config for Runtime {}
 			impl baseline::Config for Runtime {}
