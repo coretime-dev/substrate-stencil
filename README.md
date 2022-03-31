@@ -5,7 +5,7 @@
   <strong>A template for kick starting a Rust and Blockchain project using <a href="https://github.com/paritytech/substrate">Substrate</a>.</strong>
 
   <h3>
-    <a href="https://substrate.dev/">Docs</a>
+    <a href="https://substrate.io/">Docs</a>
     <span> | </span>
     <a href="https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org?via=matrix.parity.io&via=matrix.org&via=web3.foundation">Chat</a>
   </h3>
@@ -22,114 +22,24 @@ This template includes the minimum required components to start a PoS testnet, i
 
 **Notes:** The code is un-audited and not production ready, use it at your own risk.
 
-## 🚴 Usage
+## Getting Started
 
-### 📦 Installation
+Follow the steps below to get started.
 
-Install Rust and Substrate dependencies:
+### Rust Setup
 
-```
-curl https://getsubstrate.io -sSf | bash -s -- --fast
-```
+First, complete the [Dev Docs Installation](https://docs.substrate.io/v3/getting-started/installation/).
 
-Install [cargo generate](https://github.com/ashleygwilliams/cargo-generate):
+### Build and Run
 
-```
-cargo install cargo-generate
-```
+Use the following command to build the node and run it after build successfully:
 
-
-### 🛠️ Generate & Build
-
-Generate your project based the template:
-
-```
-cargo generate --git https://github.com/kaichaosun/substrate-stencil.git --branch v2.0.0 --name my-project
-
-cd my-project
-```
-
-Build source code:
-
-```bash
+```sh
 cargo build --release
+./target/release/substrate-stencil --dev
 ```
 
-### 🏃 Run
-
-Purge any existing developer chain state:
-
-```bash
-./target/release/my-project purge-chain --dev
-```
-
-Start a development chain with:
-
-```bash
-./target/release/my-project --dev
-```
-
-Detailed logs may be shown by running the node with the following environment variables set: `RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- --dev`.
-
-### 🕸️ Multi-Node Local Testnet
-
-If you want to see the multi-node consensus algorithm in action locally, then you can create a local testnet with two validator nodes for Alice and Bob, who are the initial authorities of the genesis chain that have been endowed with testnet units.
-
-Optionally, give each node a name and expose them so they are listed on the Polkadot [telemetry site](https://telemetry.polkadot.io/#/Local%20Testnet).
-
-You'll need two terminal windows open.
-
-We'll start Alice's substrate node first on default TCP port 30333 with her chain database stored locally at `/tmp/alice`. The bootnode ID of her node is `QmRpheLN4JWdAnY7HGJfWFNbfkQCb6tFf4vvA6hgjMZKrR`, which is generated from the `--node-key` value that we specify below:
-
-```bash
-cargo run -- \
-  --base-path /tmp/alice \
-  --chain=local \
-  --alice \
-  --node-key 0000000000000000000000000000000000000000000000000000000000000001 \
-  --telemetry-url 'ws://telemetry.polkadot.io:1024 0' \
-  --validator
-```
-
-In the second terminal, we'll start Bob's substrate node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/bob`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
-
-```bash
-cargo run -- \
-  --base-path /tmp/bob \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmRpheLN4JWdAnY7HGJfWFNbfkQCb6tFf4vvA6hgjMZKrR \
-  --chain=local \
-  --bob \
-  --port 30334 \
-  --telemetry-url 'ws://telemetry.polkadot.io:1024 0' \
-  --validator
-```
-
-Additional CLI usage options are available and may be shown by running `cargo run -- --help`.
-
-### 🐳 Run in Docker
-
-First, install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
-
-Then run the following command to start a single node development chain.
-
-```bash
-./scripts/docker_run.sh
-```
-
-This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/node-template --dev --ws-external`) by appending your own. A few useful ones are as follow.
-
-```bash
-# Run Substrate node without re-compiling
-./scripts/docker_run.sh ./target/release/node-template --dev --ws-external
-
-# Purge the local dev chain
-./scripts/docker_run.sh ./target/release/node-template purge-chain --dev
-
-# Check whether the code is compilable
-./scripts/docker_run.sh cargo check
-```
-
-## ⚡ Run public testnet
+## Run public testnet
 
 * Modify the genesis config in chain_spec.rs
 * Build spec, `./target/release/<your-project-name> build-spec --chain staging > my-staging.json`
@@ -152,10 +62,10 @@ This command will firstly compile your code, and then start a local development 
 	  --ws-port 9947 \
 	  --rpc-port 9936 \
       --name  validator1 \
-      --validator 
+      --validator
   ```
 * [Insert session keys](https://substrate.dev/docs/en/tutorials/start-a-private-network/customchain#add-keys-to-keystore)
 * Attract enough validators from community in waiting
 * Call force_new_era in staking pallet with sudo, rotate to PoS validators
 * Enable governance, and remove sudo
-* Enable transfer and other functions 
+* Enable transfer and other functions

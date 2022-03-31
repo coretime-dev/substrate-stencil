@@ -12,5 +12,5 @@
 # The cache for chain data in container
 .local
 
-# Flag file that show extracts successfully
-.cargo-ok
+# direnv cache
+.direnv
