@@ -2,7 +2,7 @@ use node_template_runtime::{
 	BabeConfig, BalancesConfig, GenesisConfig, GrandpaConfig, SudoConfig,
 	SystemConfig, WASM_BINARY, BABE_GENESIS_EPOCH_CONFIG, SessionConfig, StakingConfig,
 	opaque::SessionKeys, MaxNominations, StakerStatus, constants::currency::*,
-	ImOnlineConfig,
+	ImOnlineConfig, DemocracyConfig, ElectionsConfig, CouncilConfig, TechnicalCommitteeConfig,
 };
 use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_service::ChainType;
@@ -188,6 +188,8 @@ fn testnet_genesis(
 		}))
 		.collect::<Vec<_>>();
 
+	let num_endowed_accounts = endowed_accounts.len();
+
 	GenesisConfig {
 		system: SystemConfig {
 			// Add Wasm runtime to storage.
@@ -225,6 +227,26 @@ fn testnet_genesis(
 			authorities: vec![],
 		},
 		im_online: ImOnlineConfig { keys: vec![] },
+		democracy: DemocracyConfig::default(),
+		elections: ElectionsConfig {
+			members: endowed_accounts
+				.iter()
+				.take((num_endowed_accounts + 1) / 2)
+				.cloned()
+				.map(|member| (member, STASH))
+				.collect(),
+		},
+		council: CouncilConfig::default(),
+		technical_committee: TechnicalCommitteeConfig {
+			members: endowed_accounts
+				.iter()
+				.take((num_endowed_accounts + 1) / 2)
+				.cloned()
+				.collect(),
+			phantom: Default::default(),
+		},
+		technical_membership: Default::default(),
+		treasury: Default::default(),
 		sudo: SudoConfig {
 			// Assign network admin rights.
 			key: Some(root_key),
