@@ -7383,6 +7383,7 @@ dependencies = [
  "clap",
  "frame-benchmarking",
  "frame-benchmarking-cli",
+ "hex-literal",
  "jsonrpc-core",
  "node-primitives",
  "node-template-runtime",
