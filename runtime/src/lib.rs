@@ -6,6 +6,16 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
+/// Wasm binary unwrapped. If built with `SKIP_WASM_BUILD`, the function panics.
+#[cfg(feature = "std")]
+pub fn wasm_binary_unwrap() -> &'static [u8] {
+	WASM_BINARY.expect(
+		"Development wasm binary is not available. This means the client is built with \
+		 `SKIP_WASM_BUILD` flag and it is only usable for production chains. Please rebuild with \
+		 the flag disabled.",
+	)
+}
+
 use codec::{Decode, Encode};
 use frame_election_provider_support::{onchain, ExtendedBalance};
 use frame_system::EnsureRoot;
@@ -44,7 +54,7 @@ pub use frame_support::{
 	traits::{
 		ConstU128, ConstU32, ConstU8, Currency, EnsureOneOf, EqualPrivilegeOnly, Imbalance,
 		KeyOwnerProofSystem, LockIdentifier, OnUnbalanced, Randomness, StorageInfo,
-		U128CurrencyToVote,
+		U128CurrencyToVote, Contains,
 	},
 	weights::{
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
@@ -166,6 +176,13 @@ impl OnUnbalanced<NegativeImbalance> for DealWithFees {
 	}
 }
 
+pub struct BaseFilter;
+impl Contains<Call> for BaseFilter {
+	fn contains(call: &Call) -> bool {
+		!matches!(call, Call::TemplateModule(..))
+	}
+}
+
 pub struct Author;
 impl OnUnbalanced<NegativeImbalance> for Author {
 	fn on_nonzero_unbalanced(amount: NegativeImbalance) {
@@ -198,7 +215,7 @@ parameter_types! {
 
 impl frame_system::Config for Runtime {
 	/// The basic call filter to use in dispatchable.
-	type BaseCallFilter = frame_support::traits::Everything;
+	type BaseCallFilter = BaseFilter;
 	/// Block & extrinsics weights: base values and limits.
 	type BlockWeights = BlockWeights;
 	/// The maximum length of a block (in bytes).

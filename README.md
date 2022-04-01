@@ -42,25 +42,25 @@ cargo build --release
 ## Run public testnet
 
 * Modify the genesis config in chain_spec.rs
-* Build spec, `./target/release/<your-project-name> build-spec --chain staging > my-staging.json`
-* Change original spec to encoded raw spec, `./target/release/<your-project-name> build-spec --chain=my-staging.json --raw > my-staging-raw.json`
-* Start your bootnodes, node key can be generate with command `./target/release/substrate key generate-node-key`.
+* Build spec, `./target/release/substrate-stencil build-spec --chain staging > stencil-staging.json`
+* Change original spec to encoded raw spec, `./target/release/substrate-stencil build-spec --chain=stencil-staging.json --raw > stencil-staging-raw.json`
+* Start your bootnodes, node key can be generate with command `./target/release/substrate-stencil key generate-node-key`.
   ```shell
-  ./target/release/<your-project-name> \
+  ./target/release/substrate-stencil \
        --node-key <your-node-key> \
        --base-path /tmp/bootnode1 \
-       --chain my-staging-raw.json \
+       --chain stencil-staging-raw.json \
        --name bootnode1
   ```
 * Start your initial validators,
   ```shell
-  ./target/release/<your-project-name> \
+  ./target/release/substrate-stencil \
       --base-path  /tmp/validator1 \
-      --chain   my-staging-raw.json \
+      --chain   stencil-staging-raw.json \
       --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
-	  --port 30336 \
-	  --ws-port 9947 \
-	  --rpc-port 9936 \
+	    --port 30336 \
+	    --ws-port 9947 \
+	    --rpc-port 9936 \
       --name  validator1 \
       --validator
   ```
