@@ -99,6 +99,16 @@ pub fn run() -> sc_cli::Result<()> {
 				Ok((cmd.run(client, backend, None), task_manager))
 			})
 		},
+		// Some(Subcommand::Benchmark(cmd)) =>
+		// if cfg!(feature = "runtime-benchmarks") {
+		// 	let runner = cli.create_runner(cmd)?;
+
+		// 	runner.sync_run(|config| cmd.run::<Block, service::ExecutorDispatch>(config))
+		// } else {
+		// 	Err("Benchmarking wasn't enabled when building the node. You can enable it with \
+		// 		 `--features runtime-benchmarks`."
+		// 		.into())
+		// },
 		#[cfg(not(feature = "try-runtime"))]
 		Some(Subcommand::TryRuntime) => Err("TryRuntime wasn't enabled when building the node. \
 				You can enable it with `--features try-runtime`."
