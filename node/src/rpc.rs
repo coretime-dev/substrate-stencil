@@ -19,7 +19,6 @@ use sc_consensus_babe::{Config, Epoch};
 use sp_keystore::SyncCryptoStorePtr;
 use node_primitives::{Hash, BlockNumber};
 use sc_rpc::SubscriptionTaskExecutor;
-use sc_consensus_babe_rpc::BabeRpcHandler;
 use sp_consensus::SelectChain;
 use sp_consensus_babe::BabeApi;
 use sc_client_api::AuxStore;
