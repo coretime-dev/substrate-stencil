@@ -38,8 +38,7 @@ type FullBackend = sc_service::TFullBackend<Block>;
 type FullSelectChain = sc_consensus::LongestChain<FullBackend, Block>;
 /// The transaction pool type defintion.
 pub type TransactionPool = sc_transaction_pool::FullPool<Block, FullClient>;
-/// A IO handler that uses all Full RPC extensions.
-pub type IoHandler = jsonrpc_core::IoHandler<sc_rpc::Metadata>;
+
 type FullGrandpaBlockImport =
 	sc_finality_grandpa::GrandpaBlockImport<FullBackend, Block, FullClient, FullSelectChain>;
 
@@ -131,7 +130,7 @@ pub fn new_full_base(
 		client: client.clone(),
 		keystore: keystore_container.sync_keystore(),
 		network: network.clone(),
-		rpc_extensions_builder: Box::new(rpc_extensions_builder),
+		rpc_builder: Box::new(rpc_extensions_builder),
 		transaction_pool: transaction_pool.clone(),
 		task_manager: &mut task_manager,
 		system_rpc_tx,
@@ -267,7 +266,7 @@ pub fn new_partial(
 			impl Fn(
 				DenyUnsafe,
 				sc_rpc::SubscriptionTaskExecutor,
-			) -> Result<IoHandler, sc_service::Error>,
+			) -> Result<crate::rpc::RpcExtension, sc_service::Error>,
 			(
 				sc_consensus_babe::BabeBlockImport<Block, FullClient, FullGrandpaBlockImport>,
 				sc_finality_grandpa::LinkHalf<Block, FullClient, FullSelectChain>,

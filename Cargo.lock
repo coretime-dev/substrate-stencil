@@ -7671,6 +7671,7 @@ dependencies = [
  "frame-benchmarking-cli",
  "hex-literal",
  "jsonrpc-core",
+ "jsonrpsee",
  "node-primitives",
  "node-template-runtime",
  "pallet-im-online",

@@ -55,7 +55,7 @@ pub use frame_support::{
 	pallet_prelude::Get,
 	parameter_types,
 	traits::{
-		ConstU128, ConstU32, ConstU8, Currency, EnsureOneOf, EqualPrivilegeOnly, Imbalance,
+		ConstU128, ConstU32, ConstU8, Currency, EitherOfDiverse, EqualPrivilegeOnly, Imbalance,
 		KeyOwnerProofSystem, LockIdentifier, OnUnbalanced, Randomness, StorageInfo,
 		U128CurrencyToVote, Contains,
 	},
@@ -620,7 +620,7 @@ impl pallet_staking::Config for Runtime {
 	type BondingDuration = BondingDuration;
 	type SlashDeferDuration = SlashDeferDuration;
 	/// A super-majority of the council can cancel the slash.
-	type SlashCancelOrigin = EnsureOneOf<
+	type SlashCancelOrigin = EitherOfDiverse<
 		EnsureRoot<AccountId>,
 		pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 3, 4>,
 	>;
@@ -757,11 +757,11 @@ parameter_types! {
 impl pallet_treasury::Config for Runtime {
 	type PalletId = TreasuryPalletId;
 	type Currency = Balances;
-	type ApproveOrigin = EnsureOneOf<
+	type ApproveOrigin = EitherOfDiverse<
 		EnsureRoot<AccountId>,
 		pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 3, 5>,
 	>;
-	type RejectOrigin = EnsureOneOf<
+	type RejectOrigin = EitherOfDiverse<
 		EnsureRoot<AccountId>,
 		pallet_collective::EnsureProportionMoreThan<AccountId, CouncilCollective, 1, 2>,
 	>;
@@ -850,7 +850,7 @@ impl pallet_elections_phragmen::Config for Runtime {
 	type WeightInfo = pallet_elections_phragmen::weights::SubstrateWeight<Runtime>;
 }
 
-type EnsureRootOrHalfCouncil = EnsureOneOf<
+type EnsureRootOrHalfCouncil = EitherOfDiverse<
 	EnsureRoot<AccountId>,
 	pallet_collective::EnsureProportionMoreThan<AccountId, CouncilCollective, 1, 2>,
 >;
@@ -909,7 +909,7 @@ impl pallet_democracy::Config for Runtime {
 		pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 2, 3>;
 	// To cancel a proposal before it has been passed, the technical committee must be unanimous or
 	// Root must agree.
-	type CancelProposalOrigin = EnsureOneOf<
+	type CancelProposalOrigin = EitherOfDiverse<
 		EnsureRoot<AccountId>,
 		pallet_collective::EnsureProportionAtLeast<AccountId, TechnicalCollective, 1, 1>,
 	>;

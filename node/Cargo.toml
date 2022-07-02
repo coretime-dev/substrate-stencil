@@ -21,10 +21,12 @@ clap = { version = "3.0", features = ["derive"] }
 hex-literal = "0.3.4"
 rand = "0.8"
 
+jsonrpsee = { version = "0.14.0", features = ["server"] }
+# frame-rpc-system = { package = "substrate-frame-rpc-system", git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.25" }
 sc-cli = { version = "0.10.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25", features = ["wasmtime"] }
 sp-core = { version = "6.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 sc-executor = { version = "0.10.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25", features = ["wasmtime"]  }
-sc-service = { version = "0.10.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25", features = ["wasmtime"]  }
+sc-service = { package = "sc-service", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25", features = ["wasmtime"]  }
 sc-telemetry = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 sc-keystore = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 sp-keystore = { version = "0.12.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
@@ -57,7 +59,7 @@ sp-block-builder = { version = "4.0.0-dev", git = "https://github.com/paritytech
 sc-basic-authorship = { version = "0.10.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 sc-consensus-babe-rpc = { version = "0.10.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 sc-finality-grandpa-rpc = { version = "0.10.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
-substrate-frame-rpc-system = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
+frame-rpc-system = { package = "substrate-frame-rpc-system", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 pallet-transaction-payment-rpc = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 
 # These dependencies are used for runtime benchmarking

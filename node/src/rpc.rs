@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use jsonrpsee::RpcModule;
 use node_template_runtime::{opaque::Block};
 pub use sc_rpc_api::DenyUnsafe;
 use sc_transaction_pool_api::TransactionPool;
@@ -22,7 +23,6 @@ use sc_rpc::SubscriptionTaskExecutor;
 use sp_consensus::SelectChain;
 use sp_consensus_babe::BabeApi;
 use sc_client_api::AuxStore;
-use sc_finality_grandpa_rpc::GrandpaRpcHandler;
 use node_primitives::{AccountId, Balance, Index};
 
 /// Extra dependencies for BABE.
@@ -67,10 +67,13 @@ pub struct FullDeps<C, P, SC, B> {
 	pub grandpa: GrandpaDeps<B>,
 }
 
+/// A type representing all RPC extensions.
+pub type RpcExtension = RpcModule<()>;
+
 /// Instantiate all full RPC extensions.
 pub fn create_full<C, P, SC, B>(
 	deps: FullDeps<C, P, SC, B>
-) -> Result<jsonrpc_core::IoHandler<sc_rpc_api::Metadata>, Box<dyn std::error::Error + Send + Sync>>
+) -> Result<RpcExtension, Box<dyn std::error::Error + Send + Sync>>
 where
 	C: ProvideRuntimeApi<Block>
 		+ HeaderBackend<Block>
@@ -79,7 +82,7 @@ where
 		+ Sync
 		+ Send
 		+ 'static,
-	C::Api: substrate_frame_rpc_system::AccountNonceApi<Block, AccountId, Index>,
+	C::Api: frame_rpc_system::AccountNonceApi<Block, AccountId, Index>,
 	C::Api: pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi<Block, Balance>,
 	C::Api: BabeApi<Block>,
 	C::Api: BlockBuilder<Block>,
@@ -88,10 +91,12 @@ where
 	B: sc_client_api::Backend<Block> + Send + Sync + 'static,
 	B::State: sc_client_api::backend::StateBackend<sp_runtime::traits::HashFor<Block>>,
 {
-	use pallet_transaction_payment_rpc::{TransactionPayment, TransactionPaymentApi};
-	use substrate_frame_rpc_system::{FullSystem, SystemApi};
+	use pallet_transaction_payment_rpc::{TransactionPayment, TransactionPaymentApiServer};
+	use frame_rpc_system::{System, SystemApiServer};
+	use sc_consensus_babe_rpc::{Babe, BabeApiServer};
+	use sc_finality_grandpa_rpc::{Grandpa, GrandpaApiServer};
 
-	let mut io = jsonrpc_core::IoHandler::default();
+	let mut io = RpcModule::new(());
 	let FullDeps { client, pool, select_chain, chain_spec: _, deny_unsafe, babe, grandpa } = deps;
 	let BabeDeps { keystore, babe_config, shared_epoch_changes } = babe;
 	let GrandpaDeps {
@@ -102,27 +107,29 @@ where
 		finality_provider,
 	} = grandpa;
 
-	io.extend_with(SystemApi::to_delegate(FullSystem::new(client.clone(), pool, deny_unsafe)));
-
-	io.extend_with(TransactionPaymentApi::to_delegate(TransactionPayment::new(client.clone())));
-
-	io.extend_with(sc_consensus_babe_rpc::BabeApi::to_delegate(BabeRpcHandler::new(
-		client.clone(),
-		shared_epoch_changes.clone(),
-		keystore,
-		babe_config,
-		select_chain,
-		deny_unsafe,
-	)));
-
-	io.extend_with(sc_finality_grandpa_rpc::GrandpaApi::to_delegate(GrandpaRpcHandler::new(
-		shared_authority_set.clone(),
-		shared_voter_state,
-		justification_stream,
-		subscription_executor,
-		finality_provider,
-	)));
-
+	io.merge(System::new(client.clone(), pool.clone(), deny_unsafe).into_rpc())?;
+	io.merge(TransactionPayment::new(client.clone()).into_rpc())?;
+	io.merge(
+		Babe::new(
+			client.clone(),
+			shared_epoch_changes.clone(),
+			keystore,
+			babe_config,
+			select_chain,
+			deny_unsafe,
+		)
+		.into_rpc(),
+	)?;
+	io.merge(
+		Grandpa::new(
+			subscription_executor,
+			shared_authority_set.clone(),
+			shared_voter_state,
+			justification_stream,
+			finality_provider,
+		)
+		.into_rpc(),
+	)?;
 	// Extend this RPC with a custom API by using the following syntax.
 	// `YourRpcStruct` should have a reference to a client, which is needed
 	// to call into the runtime.
