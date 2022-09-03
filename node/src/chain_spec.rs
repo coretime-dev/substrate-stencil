@@ -4,6 +4,7 @@ use node_template_runtime::{
 	constants::currency::*, opaque::SessionKeys, BabeConfig, BalancesConfig, CouncilConfig,
 	DemocracyConfig, ElectionsConfig, GenesisConfig, GrandpaConfig, ImOnlineConfig, MaxNominations,
 	SessionConfig, StakerStatus, StakingConfig, SudoConfig, SystemConfig, TechnicalCommitteeConfig,
+	NominationPoolsConfig,
 	BABE_GENESIS_EPOCH_CONFIG, wasm_binary_unwrap,
 };
 use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
@@ -340,5 +341,10 @@ fn testnet_genesis(
 			key: Some(root_key),
 		},
 		transaction_payment: Default::default(),
+		nomination_pools: NominationPoolsConfig {
+			min_create_bond: 10 * DOLLARS,
+			min_join_bond: 1 * DOLLARS,
+			..Default::default()
+		},
 	}
 }
