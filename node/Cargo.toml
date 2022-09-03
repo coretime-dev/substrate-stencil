@@ -20,6 +20,7 @@ name = "substrate-stencil"
 clap = { version = "3.1.18", features = ["derive"] }
 hex-literal = "0.3.4"
 rand = "0.8"
+jsonrpsee = { version = "0.14.0", features = ["server"] }
 
 sc-cli = { version = "0.10.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25", features = ["wasmtime"] }
 sp-core = { version = "6.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
@@ -45,6 +46,8 @@ sc-network = { version = "0.10.0-dev", git = "https://github.com/paritytech/subs
 sp-runtime = { version = "6.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 sp-timestamp = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 sp-authorship = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
+sp-inherents = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
+sp-keyring = { version = "6.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 sp-transaction-storage-proof = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 
 # These dependencies are used for the node template's RPCs
@@ -66,6 +69,8 @@ frame-benchmarking-cli = { version = "4.0.0-dev", git = "https://github.com/pari
 
 # frame dependencies
 pallet-im-online = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
+frame-system = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
+pallet-transaction-payment = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.25" }
 
 # Local Dependencies
 node-template-runtime = { version = "4.0.0-dev", path = "../runtime" }

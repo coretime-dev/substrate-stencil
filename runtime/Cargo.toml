@@ -112,6 +112,7 @@ std = [
 	"pallet-transaction-payment/std",
 	"pallet-bags-list/std",
 	"pallet-session/std",
+	"pallet-nomination-pools/std",
 	"pallet-staking/std",
 	"pallet-offences/std",
 	"pallet-election-provider-multi-phase/std",

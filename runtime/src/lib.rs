@@ -21,7 +21,8 @@ use frame_election_provider_support::{
 	onchain, ElectionDataProvider, ExtendedBalance, SequentialPhragmen, VoteWeight,
 };
 use frame_system::EnsureRoot;
-use node_primitives::*;
+pub use node_primitives::Signature;
+use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
 use pallet_election_provider_multi_phase::SolutionAccuracyOf;
 use pallet_grandpa::{
 	fg_primitives, AuthorityId as GrandpaId, AuthorityList as GrandpaAuthorityList,
@@ -67,6 +68,8 @@ pub use frame_support::{
 pub use pallet_balances::Call as BalancesCall;
 #[cfg(any(feature = "std", test))]
 pub use pallet_staking::StakerStatus;
+#[cfg(any(feature = "std", test))]
+pub use frame_system::Call as SystemCall;
 pub use pallet_timestamp::Call as TimestampCall;
 use pallet_transaction_payment::{CurrencyAdapter, Multiplier, TargetedFeeAdjustment};
 #[cfg(any(feature = "std", test))]
@@ -180,8 +183,9 @@ impl OnUnbalanced<NegativeImbalance> for DealWithFees {
 
 pub struct BaseFilter;
 impl Contains<Call> for BaseFilter {
-	fn contains(call: &Call) -> bool {
-		!matches!(call, Call::TemplateModule(..))
+	fn contains(_call: &Call) -> bool {
+		// !matches!(call, Call::TemplateModule(..)) // Template module will be disable
+		true
 	}
 }
 
