@@ -1,7 +1,7 @@
 use node_template_runtime::{
 	AccountId, BabeConfig, BalancesConfig, GenesisConfig, GrandpaConfig, Signature, SudoConfig,
 	SystemConfig, WASM_BINARY, BABE_GENESIS_EPOCH_CONFIG, SessionConfig, StakingConfig, SessionKeys,
-	constants::currency::*, StakerStatus, MaxNominations,
+	constants::currency::*, StakerStatus, MaxNominations, ImOnlineConfig,
 };
 use sc_service::ChainType;
 use sp_consensus_babe::AuthorityId as BabeId;
@@ -11,6 +11,7 @@ use sp_runtime::{
 	traits::{IdentifyAccount, Verify},
 	Perbill,
 };
+use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use node_primitives::*;
 
 // The URL for the telemetry server.
@@ -39,17 +40,20 @@ where
 fn session_keys(
 	babe: BabeId,
 	grandpa: GrandpaId,
+	im_online: ImOnlineId,
 ) -> SessionKeys {
-	SessionKeys { babe, grandpa }
+	SessionKeys { babe, grandpa, im_online }
 }
 
 /// Generate an Babe authority key.
-pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, GrandpaId) {
+pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, GrandpaId, ImOnlineId) {
 	(
 		get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", s)),
 		get_account_id_from_seed::<sr25519::Public>(s),
 		get_from_seed::<BabeId>(s),
-		get_from_seed::<GrandpaId>(s))
+		get_from_seed::<GrandpaId>(s),
+		get_from_seed::<ImOnlineId>(s),
+	)
 }
 
 pub fn development_config() -> Result<ChainSpec, String> {
@@ -145,7 +149,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 /// Configure initial storage state for FRAME modules.
 fn testnet_genesis(
 	wasm_binary: &[u8],
-	initial_authorities: Vec<(AccountId, AccountId, BabeId, GrandpaId)>,
+	initial_authorities: Vec<(AccountId, AccountId, BabeId, GrandpaId, ImOnlineId)>,
 	initial_nominators: Vec<AccountId>,
 	root_key: AccountId,
 	mut endowed_accounts: Vec<AccountId>,
@@ -206,7 +210,7 @@ fn testnet_genesis(
 					(
 						x.0.clone(),
 						x.0.clone(),
-						session_keys(x.2.clone(), x.3.clone()),
+						session_keys(x.2.clone(), x.3.clone(), x.4.clone()),
 					)
 				})
 				.collect::<Vec<_>>(),
@@ -219,6 +223,7 @@ fn testnet_genesis(
 			stakers,
 			..Default::default()
 		},
+		im_online: ImOnlineConfig { keys: vec![] },
 		sudo: SudoConfig {
 			// Assign network admin rights.
 			key: Some(root_key),
