@@ -1,25 +1,24 @@
 use hex_literal::hex;
-use node_primitives::*;
+
 use node_template_runtime::{
-	constants::currency::*, opaque::SessionKeys, BabeConfig, BalancesConfig, CouncilConfig,
-	DemocracyConfig, ElectionsConfig, GenesisConfig, GrandpaConfig, ImOnlineConfig, MaxNominations,
-	SessionConfig, StakerStatus, StakingConfig, SudoConfig, SystemConfig, TechnicalCommitteeConfig,
-	NominationPoolsConfig,
-	BABE_GENESIS_EPOCH_CONFIG, wasm_binary_unwrap,
+	AccountId, BabeConfig, BalancesConfig, GenesisConfig, GrandpaConfig, Signature, SudoConfig,
+	SystemConfig, WASM_BINARY, BABE_GENESIS_EPOCH_CONFIG, SessionConfig, StakingConfig, SessionKeys,
+	constants::currency::*, StakerStatus, MaxNominations, ImOnlineConfig,
 };
-use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_service::ChainType;
-use sc_telemetry::TelemetryEndpoints;
 use sp_consensus_babe::AuthorityId as BabeId;
+use sp_consensus_grandpa::AuthorityId as GrandpaId;
 use sp_core::{crypto::UncheckedInto, sr25519, Pair, Public};
-use sp_finality_grandpa::AuthorityId as GrandpaId;
+use sc_telemetry::TelemetryEndpoints;
 use sp_runtime::{
 	traits::{IdentifyAccount, Verify},
 	Perbill,
 };
+use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
+use node_primitives::*;
 
 // The URL for the telemetry server.
-// const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
+const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
 /// Specialized `ChainSpec`. This is a specialization of the general Substrate ChainSpec type.
 pub type ChainSpec = sc_service::GenericChainSpec<GenesisConfig>;
@@ -33,12 +32,6 @@ pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Pu
 
 type AccountPublic = <Signature as Verify>::Signer;
 
-const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
-
-fn session_keys(babe: BabeId, grandpa: GrandpaId, im_online: ImOnlineId) -> SessionKeys {
-	SessionKeys { babe, grandpa, im_online }
-}
-
 /// Generate an account ID from seed.
 pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
 where
@@ -47,7 +40,15 @@ where
 	AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
 }
 
-/// Helper function to generate stash, controller and session key from seed
+fn session_keys(
+	babe: BabeId,
+	grandpa: GrandpaId,
+	im_online: ImOnlineId,
+) -> SessionKeys {
+	SessionKeys { babe, grandpa, im_online }
+}
+
+/// Generate an Babe authority key.
 pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, GrandpaId, ImOnlineId) {
 	(
 		get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", s)),
@@ -59,6 +60,7 @@ pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, Grand
 }
 
 pub fn development_config() -> Result<ChainSpec, String> {
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Development wasm not available".to_string())?;
 
 	Ok(ChainSpec::from_genesis(
 		// Name
@@ -68,6 +70,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 		ChainType::Development,
 		move || {
 			testnet_genesis(
+				wasm_binary,
 				// Initial PoA authorities
 				vec![authority_keys_from_seed("Alice")],
 				vec![],
@@ -80,6 +83,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
 					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
 				],
+				true,
 			)
 		},
 		// Bootnodes
@@ -97,6 +101,8 @@ pub fn development_config() -> Result<ChainSpec, String> {
 }
 
 pub fn local_testnet_config() -> Result<ChainSpec, String> {
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Development wasm not available".to_string())?;
+
 	Ok(ChainSpec::from_genesis(
 		// Name
 		"Local Testnet",
@@ -105,6 +111,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		ChainType::Local,
 		move || {
 			testnet_genesis(
+				wasm_binary,
 				// Initial PoA authorities
 				vec![authority_keys_from_seed("Alice"), authority_keys_from_seed("Bob")],
 				vec![],
@@ -125,6 +132,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 					get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
 					get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
 				],
+				true,
 			)
 		},
 		// Bootnodes
@@ -162,6 +170,12 @@ pub fn staging_network_config() -> ChainSpec {
 }
 
 fn staging_network_config_genesis() -> GenesisConfig {
+	let wasm_binary = WASM_BINARY.expect(
+		"Development wasm binary is not available. This means the client is built with \
+		 `SKIP_WASM_BUILD` flag and it is only usable for production chains. Please rebuild with \
+		 the flag disabled.",
+	);
+
 	// for i in 1 2 3 4; do for j in stash controller; do subkey inspect "$SECRET//$i//$j"; done; done
 	// for i in 1 2 3 4; do for j in babe; do subkey --sr25519 inspect "$SECRET//$i//$j"; done; done
 	// for i in 1 2 3 4; do for j in grandpa; do subkey --ed25519 inspect "$SECRET//$i//$j"; done; done
@@ -239,19 +253,23 @@ fn staging_network_config_genesis() -> GenesisConfig {
 	let endowed_accounts: Vec<AccountId> = vec![root_key.clone()];
 
 	testnet_genesis(
+		wasm_binary,
 		initial_authorities,
 		vec![],
 		root_key,
-		endowed_accounts
+		endowed_accounts,
+		true,
 	)
 }
 
 /// Configure initial storage state for FRAME modules.
 fn testnet_genesis(
+	wasm_binary: &[u8],
 	initial_authorities: Vec<(AccountId, AccountId, BabeId, GrandpaId, ImOnlineId)>,
 	initial_nominators: Vec<AccountId>,
 	root_key: AccountId,
 	mut endowed_accounts: Vec<AccountId>,
+	_enable_println: bool,
 ) -> GenesisConfig {
 	// endow all authorities and nominators.
 	initial_authorities
@@ -285,22 +303,31 @@ fn testnet_genesis(
 		}))
 		.collect::<Vec<_>>();
 
-	let num_endowed_accounts = endowed_accounts.len();
-
 	GenesisConfig {
 		system: SystemConfig {
 			// Add Wasm runtime to storage.
-			code: wasm_binary_unwrap().to_vec(),
+			code: wasm_binary.to_vec(),
 		},
 		balances: BalancesConfig {
 			// Configure endowed accounts with initial balance of 1 << 60.
-			balances: endowed_accounts.iter().cloned().map(|k| (k, ENDOWMENT)).collect(),
+			balances: endowed_accounts.iter().cloned().map(|k| (k, 1 << 60)).collect(),
+		},
+		babe: BabeConfig {
+			authorities: vec![],
+			epoch_config: Some(BABE_GENESIS_EPOCH_CONFIG),
+		},
+		grandpa: GrandpaConfig {
+			authorities: vec![],
 		},
 		session: SessionConfig {
 			keys: initial_authorities
 				.iter()
 				.map(|x| {
-					(x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone()))
+					(
+						x.0.clone(),
+						x.0.clone(),
+						session_keys(x.2.clone(), x.3.clone(), x.4.clone()),
+					)
 				})
 				.collect::<Vec<_>>(),
 		},
@@ -310,41 +337,13 @@ fn testnet_genesis(
 			invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
 			slash_reward_fraction: Perbill::from_percent(10),
 			stakers,
-			// TODO: ForceEra::ForceNone
 			..Default::default()
 		},
-		babe: BabeConfig { authorities: vec![], epoch_config: Some(BABE_GENESIS_EPOCH_CONFIG) },
-		grandpa: GrandpaConfig { authorities: vec![] },
 		im_online: ImOnlineConfig { keys: vec![] },
-		democracy: DemocracyConfig::default(),
-		elections: ElectionsConfig {
-			members: endowed_accounts
-				.iter()
-				.take((num_endowed_accounts + 1) / 2)
-				.cloned()
-				.map(|member| (member, STASH))
-				.collect(),
-		},
-		council: CouncilConfig::default(),
-		technical_committee: TechnicalCommitteeConfig {
-			members: endowed_accounts
-				.iter()
-				.take((num_endowed_accounts + 1) / 2)
-				.cloned()
-				.collect(),
-			phantom: Default::default(),
-		},
-		technical_membership: Default::default(),
-		treasury: Default::default(),
 		sudo: SudoConfig {
 			// Assign network admin rights.
 			key: Some(root_key),
 		},
 		transaction_payment: Default::default(),
-		nomination_pools: NominationPoolsConfig {
-			min_create_bond: 10 * DOLLARS,
-			min_join_bond: 1 * DOLLARS,
-			..Default::default()
-		},
 	}
 }

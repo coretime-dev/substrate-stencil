@@ -4,8 +4,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use sp_runtime::{
-	traits::{IdentifyAccount, Verify},
-	MultiSignature,
+	generic,
+	traits::{BlakeTwo256, IdentifyAccount, Verify},
+	MultiSignature, OpaqueExtrinsic,
 };
 
 /// Type used for expressing timestamp.
@@ -29,3 +30,12 @@ pub type Signature = MultiSignature;
 /// Some way of identifying an account on the chain. We intentionally make it equivalent
 /// to the public key of our transaction signing scheme.
 pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+
+/// Header type.
+pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
+
+/// Block type.
+pub type Block = generic::Block<Header, OpaqueExtrinsic>;
+
+/// Block ID.
+pub type BlockId = generic::BlockId<Block>;
